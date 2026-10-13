@@ -1,0 +1,15 @@
+# Secrets
+.env
+
+# Generated catalog (keep the empty folder)
+data/*
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# macOS
+.DS_Store

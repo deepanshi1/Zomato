@@ -13,6 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app import llm
 from app.catalog import (
     DEFAULT_CANDIDATE_POOL,
     DEFAULT_CATALOG_PATH,
@@ -78,6 +79,10 @@ def _int_env(name: str, default: int) -> int:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     get_settings()  # fail fast on bad configuration
+    try:
+        llm.response_format_mode()
+    except llm.LLMError as exc:
+        raise ValueError(str(exc)) from None
     try:
         catalog = get_catalog()
         logger.info("Loaded catalog with %d restaurants", len(catalog.rows))

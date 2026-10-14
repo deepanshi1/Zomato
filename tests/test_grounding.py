@@ -6,6 +6,8 @@ import pytest
 from app import llm
 from app.recommend import (
     PROFILE_FIELDS,
+    REPLY_SCHEMA,
+    SYSTEM_PROMPT,
     RecommendationError,
     parse_model_json,
     rank_with_model,
@@ -201,41 +203,148 @@ def test_two_fences_are_not_guessed():
 
 # --- HTTP client ------------------------------------------------------------------------
 
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+JSON_VALIDATE_FAILED = {
+    "error": {
+        "message": "Failed to generate JSON. Please adjust your prompt.",
+        "type": "invalid_request_error",
+        "code": "json_validate_failed",
+        "failed_generation": '{"summary": "x", "recommendations": [',
+    }
+}
+
+
 @pytest.fixture
 def llm_env(monkeypatch):
-    monkeypatch.setenv("LLM_BASE_URL", "https://llm.example/v1/")
-    monkeypatch.setenv("LLM_API_KEY", "sk-test-secret")
-    monkeypatch.setenv("LLM_MODEL", "test-model")
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.groq.com/openai/v1/")
+    monkeypatch.setenv("LLM_API_KEY", "gsk-test-secret")
+    monkeypatch.setenv("LLM_MODEL", "openai/gpt-oss-120b")
+    monkeypatch.delenv("LLM_RESPONSE_FORMAT", raising=False)
 
 
 def mock_client(handler):
     return httpx.Client(transport=httpx.MockTransport(handler))
 
 
-def test_complete_posts_chat_completion(llm_env):
-    seen = {}
-
+def capture(seen, content="hello"):
     def handler(request):
         seen["url"] = str(request.url)
         seen["auth"] = request.headers["Authorization"]
         seen["body"] = json.loads(request.content)
-        return httpx.Response(200, json={"choices": [{"message": {"content": "hello"}}]})
-
-    assert llm.complete("sys", "usr", client=mock_client(handler)) == "hello"
-    assert seen["url"] == "https://llm.example/v1/chat/completions"
-    assert seen["auth"] == "Bearer sk-test-secret"
-    assert seen["body"]["model"] == "test-model"
-    assert seen["body"]["temperature"] == 0.2
-    assert [m["role"] for m in seen["body"]["messages"]] == ["system", "user"]
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+    return handler
 
 
-@pytest.mark.parametrize("status", [401, 429, 500])
-def test_http_errors_raise_without_leaking_key(llm_env, status):
-    client = mock_client(lambda request: httpx.Response(status, text="sk-test-secret is bad"))
+def test_complete_posts_groq_chat_completion_with_strict_schema(llm_env):
+    seen = {}
+    assert llm.complete("sys", "usr", schema=REPLY_SCHEMA, client=mock_client(capture(seen))) == "hello"
+    assert seen["url"] == GROQ_URL
+    assert seen["auth"] == "Bearer gsk-test-secret"
+    body = seen["body"]
+    assert body["model"] == "openai/gpt-oss-120b"
+    assert body["temperature"] == 0.2
+    assert [m["role"] for m in body["messages"]] == ["system", "user"]
+    assert body["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {"name": "recommendations", "strict": True, "schema": REPLY_SCHEMA},
+    }
+
+
+def test_json_object_mode(llm_env, monkeypatch):
+    monkeypatch.setenv("LLM_RESPONSE_FORMAT", "json_object")
+    monkeypatch.setenv("LLM_MODEL", "llama-3.3-70b-versatile")
+    seen = {}
+    llm.complete("sys", "usr", schema=REPLY_SCHEMA, client=mock_client(capture(seen)))
+    assert seen["body"]["response_format"] == {"type": "json_object"}
+    assert seen["body"]["model"] == "llama-3.3-70b-versatile"
+
+
+def test_off_mode_sends_no_response_format(llm_env, monkeypatch):
+    monkeypatch.setenv("LLM_RESPONSE_FORMAT", "off")
+    seen = {}
+    llm.complete("sys", "usr", schema=REPLY_SCHEMA, client=mock_client(capture(seen)))
+    assert "response_format" not in seen["body"]
+
+
+def test_unknown_response_format_is_rejected(llm_env, monkeypatch):
+    monkeypatch.setenv("LLM_RESPONSE_FORMAT", "yaml")
+    with pytest.raises(llm.LLMError, match="LLM_RESPONSE_FORMAT"):
+        llm.complete("sys", "usr", client=mock_client(capture({})))
+
+
+def test_system_prompt_mentions_json_for_json_object_mode():
+    assert "JSON" in SYSTEM_PROMPT
+
+
+def test_default_model_path_sends_the_reply_schema(pool, monkeypatch):
+    model = FakeModel()
+    monkeypatch.setattr("app.llm.complete", model)
+    run(pool, None)
+    assert model.kwargs[0] == {"schema": REPLY_SCHEMA}
+
+
+def test_reply_schema_is_strict_compatible():
+    def check(node):
+        if node.get("type") == "object":
+            assert node["additionalProperties"] is False
+            assert set(node["required"]) == set(node["properties"])
+            for child in node["properties"].values():
+                check(child)
+        if node.get("type") == "array":
+            check(node["items"])
+    check(REPLY_SCHEMA)
+
+
+def test_json_validate_failed_raises_invalid_json_with_failed_text(llm_env):
+    client = mock_client(lambda request: httpx.Response(400, json=JSON_VALIDATE_FAILED))
+    with pytest.raises(llm.LLMInvalidJSON) as exc:
+        llm.complete("sys", "usr", client=client)
+    assert exc.value.failed_generation == '{"summary": "x", "recommendations": ['
+
+
+def test_json_validate_failed_goes_to_repair_retry(pool):
+    rejected = llm.LLMInvalidJSON("bad json", failed_generation='{"recommendations": [')
+    model = FakeModel(replies=[rejected, reply(item("it-best", 1))])
+    result = run(pool, model)
+    assert [p.row["id"] for p in result.picks] == ["it-best"]
+    assert len(model.calls) == 2
+    assert '{"recommendations": [' in model.calls[1][1]
+
+
+def test_json_validate_failed_twice_fails(pool):
+    model = FakeModel(replies=[llm.LLMInvalidJSON("bad"), llm.LLMInvalidJSON("bad again")])
+    with pytest.raises(RecommendationError):
+        run(pool, model)
+
+
+def test_other_400_is_a_provider_error(llm_env):
+    body = {"error": {"message": "model not found", "code": "model_not_found"}}
+    client = mock_client(lambda request: httpx.Response(400, json=body))
     with pytest.raises(llm.LLMError) as exc:
         llm.complete("sys", "usr", client=client)
-    assert str(status) in str(exc.value)
-    assert "sk-test-secret" not in str(exc.value)
+    assert not isinstance(exc.value, llm.LLMInvalidJSON)
+
+
+def test_rate_limit_logs_retry_after(llm_env, caplog):
+    client = mock_client(lambda request: httpx.Response(429, headers={"retry-after": "7"}, json={}))
+    with pytest.raises(llm.LLMError, match="rate limit"):
+        llm.complete("sys", "usr", client=client)
+    assert "retry-after: 7" in caplog.text
+
+
+def test_rate_limit_is_not_retried(pool):
+    model = FakeModel(replies=[llm.LLMError("Language model rate limit reached."), reply(item("it-best", 1))])
+    with pytest.raises(RecommendationError):
+        run(pool, model)
+    assert len(model.calls) == 1
+
+
+@pytest.mark.parametrize("status", [401, 429, 500, 503])
+def test_http_errors_raise_without_leaking_key(llm_env, status):
+    client = mock_client(lambda request: httpx.Response(status, text="gsk-test-secret is bad"))
+    with pytest.raises(llm.LLMError) as exc:
+        llm.complete("sys", "usr", client=client)
+    assert "gsk-test-secret" not in str(exc.value)
 
 
 def test_timeout_raises(llm_env):

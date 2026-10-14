@@ -51,21 +51,28 @@ FIXTURE_ROWS = [
 class FakeModel:
     """Stand-in for app.llm.complete. Never touches the network.
 
-    With `replies`, returns them in order. Without, ranks every candidate in the
-    order given, up to max_recommendations, with a short explanation each.
+    With `replies`, returns them in order; a reply that is an exception is raised
+    instead. Without, ranks every candidate in the order given, up to
+    max_recommendations, with a short explanation each. Keyword arguments such as
+    `schema` are recorded in `kwargs`.
     """
 
     def __init__(self, replies=None, error=None):
         self.replies = list(replies) if replies is not None else None
         self.error = error
         self.calls = []
+        self.kwargs = []
 
-    def __call__(self, system, user):
+    def __call__(self, system, user, **kwargs):
         self.calls.append((system, user))
+        self.kwargs.append(kwargs)
         if self.error is not None:
             raise self.error
         if self.replies is not None:
-            return self.replies.pop(0)
+            reply = self.replies.pop(0)
+            if isinstance(reply, Exception):
+                raise reply
+            return reply
         message = json.loads(user)
         picks = message["candidates"][: message["max_recommendations"]]
         return json.dumps({

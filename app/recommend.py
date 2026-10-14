@@ -41,6 +41,30 @@ Reply with JSON only, in exactly this shape:
 {"summary": "...", "recommendations": [{"id": "...", "rank": 1, "explanation": "..."}]}
 """
 
+# Strict JSON Schema for the reply (Groq structured outputs): every field
+# required, no extra properties. Grounding still checks ids against the pool.
+REPLY_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "summary": {"type": "string"},
+        "recommendations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "rank": {"type": "integer"},
+                    "explanation": {"type": "string"},
+                },
+                "required": ["id", "rank", "explanation"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["summary", "recommendations"],
+    "additionalProperties": False,
+}
+
 REPAIR_PROMPT = """\
 Your previous reply could not be used: {problem}
 Reply again with JSON only, in exactly this shape and nothing else:
@@ -217,30 +241,38 @@ def rank_with_model(
 ) -> ModelResult:
     """Ask the model to rank the candidates and return grounded picks.
 
-    An empty pool returns an empty result without calling the model. Invalid JSON
-    gets one repair retry. Provider errors, a second parse failure, or a reply
-    with no known ids raise RecommendationError.
+    An empty pool returns an empty result without calling the model. An
+    unparseable reply, or the provider reporting invalid JSON, gets one repair
+    retry. Other provider errors, a second failure, or a reply with no known ids
+    raise RecommendationError.
     """
     if not candidates:
         return ModelResult(summary=None, picks=[])
-    complete = complete or llm.complete
+    if complete is None:
+        def complete(system: str, user: str) -> str:
+            return llm.complete(system, user, schema=REPLY_SCHEMA)
 
     user = build_user_message(
         locality=locality, cuisine=cuisine, budget=budget, min_rating=min_rating,
         preferences=preferences, limit=limit, candidates=candidates,
     )
     try:
-        reply = complete(SYSTEM_PROMPT, user)
+        reply = ""
         try:
-            data = parse_model_json(reply)
-        except _ParseError as first:
-            logger.warning("Model reply unusable (%s); sending repair prompt", first)
-            repair = REPAIR_PROMPT.format(problem=first, previous=(reply or "")[:MAX_REPAIR_ECHO_CHARS])
+            reply = complete(SYSTEM_PROMPT, user)
+            return ground(parse_model_json(reply), candidates, limit)
+        except llm.LLMInvalidJSON as exc:
+            problem, previous = "the provider rejected it as invalid JSON", exc.failed_generation
+        except _ParseError as exc:
+            problem, previous = str(exc), reply
+
+        logger.warning("Model reply unusable (%s); sending repair prompt", problem)
+        repair = REPAIR_PROMPT.format(problem=problem, previous=(previous or "")[:MAX_REPAIR_ECHO_CHARS])
+        try:
             reply = complete(SYSTEM_PROMPT, f"{user}\n\n{repair}")
-            try:
-                data = parse_model_json(reply)
-            except _ParseError as second:
-                raise RecommendationError(f"The model reply could not be parsed: {second}.") from None
+            data = parse_model_json(reply)
+        except (llm.LLMInvalidJSON, _ParseError) as exc:
+            raise RecommendationError(f"The model reply could not be used after a repair retry: {exc}.") from None
     except llm.LLMError as exc:
         logger.error("Model call failed: %s", exc)
         raise RecommendationError(str(exc)) from None

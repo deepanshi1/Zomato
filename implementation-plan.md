@@ -18,7 +18,7 @@ The first version is complete when a diner submits locality, budget, cuisine, mi
 
 1. Add `requirements.txt` with FastAPI, Uvicorn, Pydantic, `datasets`, PyArrow, Pandas, HTTPX, and Pytest.
 2. Add the package folders from the architecture: `app/`, `ingest/`, `tests/`, and an empty `data/` directory.
-3. Add `.env.example` with `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, `CATALOG_PATH`, `CANDIDATE_POOL`, and `DEFAULT_LIMIT`.
+3. Add `.env.example` with `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, `CATALOG_PATH`, `CANDIDATE_POOL`, and `DEFAULT_LIMIT`. Phase 4 adds `LLM_RESPONSE_FORMAT` and fills in the Groq defaults.
 4. Add `.gitignore` entries for `.env`, `data/`, `__pycache__/`, and `.venv/`.
 5. Add a short `README.md` that states the run order: create a virtualenv, install requirements, run ingestion, start the API.
 
@@ -139,9 +139,25 @@ The first version is complete when a diner submits locality, budget, cuisine, mi
 
 **Satisfies.** The integration layer’s prompt handoff, and the recommendation engine: rank restaurants, explain why each fits, and optionally summarize the set.
 
+**Provider: Groq.** The model runs on [Groq](https://console.groq.com) through its OpenAI-compatible chat completions API. The client stays provider-neutral (`LLM_*` variables, `complete(system, user)`), so switching provider later means changing `.env`, not code.
+
+| Setting | Value |
+| --- | --- |
+| `LLM_BASE_URL` | `https://api.groq.com/openai/v1` (the client appends `/chat/completions`) |
+| `LLM_API_KEY` | A Groq API key from console.groq.com/keys, stored only in `.env` |
+| `LLM_MODEL` | `openai/gpt-oss-120b` (default). Production model; supports strict JSON Schema output |
+| `LLM_RESPONSE_FORMAT` | `json_schema` (default) or `json_object` |
+
+Fallback model: `openai/gpt-oss-20b`. It is faster and supports strict JSON Schema; the exit check also runs it with `LLM_RESPONSE_FORMAT=json_object` to exercise the non-schema path. `llama-3.3-70b-versatile` appears in Groq's public model list but returned `model_not_found` for this project's key (checked 2026-10-14), so it is not the fallback. If an account does have it, pair it with `json_object`, because it does not support strict JSON Schema. Preview models are not used because Groq can retire them at short notice. Check the active model list (`GET /openai/v1/models`) when choosing a model, because availability differs by account and Groq deprecates models over time.
+
 **Tasks**
 
-1. Implement `app/llm.py` with `complete(system, user) -> str`. Use an OpenAI-compatible chat completion via HTTPX. Read `LLM_BASE_URL`, `LLM_API_KEY`, and `LLM_MODEL` from the environment. Set temperature around 0.2.
+1. Implement `app/llm.py` with `complete(system, user) -> str`. Use an OpenAI-compatible chat completion via HTTPX against Groq. Read `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, and `LLM_RESPONSE_FORMAT` from the environment. Set temperature around 0.2.
+   - With `json_schema`, send `response_format` as `{"type": "json_schema", "json_schema": {"name": "recommendations", "strict": true, "schema": ...}}`, with the schema matching the reply shape below (all fields required, `additionalProperties: false`). Groq constrains decoding to the schema, so a malformed reply should be rare.
+   - With `json_object`, send `{"type": "json_object"}`. This guarantees valid JSON syntax but not the shape. The system prompt must say to reply in JSON, which Groq requires for this mode.
+   - Groq returns HTTP 400 with error code `json_validate_failed` when the model cannot produce valid JSON. Treat that like an unparseable reply, so it goes to the repair retry below rather than straight to 502. Every other 4xx or 5xx is a provider error.
+   - HTTP 429 means a Groq rate limit, which is common on the free tier. Return 502 without an automatic retry, and log the `retry-after` header if present.
+   - Never log or return the API key.
 2. Implement `app/recommend.py`:
    - Build a system prompt that ranks only supplied restaurants, uses catalog facts for rating, cost, and cuisine, judges free-text preferences only from `rest_type`, `dish_liked`, and `review_excerpt`, and returns JSON only.
    - Build a user message with normalized preferences and a JSON array of candidate profiles: `id`, `name`, `locality`, `cuisines`, `rest_type`, `cost_for_two`, `rating`, `votes`, `online_order`, `book_table`, `dish_liked`, `review_excerpt`. Leave `url` out of the profile.
@@ -156,7 +172,7 @@ The first version is complete when a diner submits locality, budget, cuisine, mi
 }
 ```
 
-   - Parse JSON. If the text is wrapped in one markdown fence, strip it and parse again.
+   - Parse JSON. If the text is wrapped in one markdown fence, strip it and parse again. Keep this and the repair retry even with strict schema output: they cover `json_object` mode and a model switch.
    - On parse failure, retry once with a short repair prompt that includes the invalid text.
    - Drop ids that are not in the candidate pool. Sort remaining items by `rank`. Join each id to catalog fields so name, cuisines, rating, and cost on the response come from the catalog.
    - If the pool is empty, skip the model call and return the Phase 3 empty response.
@@ -167,11 +183,13 @@ The first version is complete when a diner submits locality, budget, cuisine, mi
    - A payload of only unknown ids is treated as a grounding failure.
    - Invalid JSON once, then valid JSON, succeeds via the repair retry.
    - Invalid JSON twice becomes a failure result the route maps to 502.
+   - With a mock HTTP transport (no network): the request goes to `https://api.groq.com/openai/v1/chat/completions` with the Bearer key, model, temperature, and the configured `response_format`; a Groq 400 `json_validate_failed` leads to the repair retry; a 429 maps to 502.
 
 **Exit checks**
 
 - `pytest tests/test_grounding.py` passes with no live model call.
-- A manual call with a real key returns explanations, and the rating and cost on each card still match the catalog row for that id.
+- A manual call with a real Groq key and `openai/gpt-oss-120b` returns explanations, and the rating and cost on each card still match the catalog row for that id.
+- The same manual call with `openai/gpt-oss-20b` and `LLM_RESPONSE_FORMAT=json_object` also returns a grounded list.
 - A query that matches nothing does not call the provider.
 
 ## Phase 5 — Single-page UI
@@ -206,7 +224,7 @@ The first version is complete when a diner submits locality, budget, cuisine, mi
 **Tasks**
 
 1. Run ingestion if `data/catalog.parquet` is missing.
-2. Start the API with a configured `.env`.
+2. Start the API with a configured `.env` (Groq settings from Phase 4).
 3. In the browser, submit a sample a diner would actually use:
    - Locality: Banashankari
    - Budget: medium
@@ -233,7 +251,7 @@ The first version is complete when a diner submits locality, budget, cuisine, mi
 | 1 | `catalog.parquet`, `facets.json`, normalization tests | Phase 0 |
 | 2 | In-memory filter and filter tests | Phase 1 schema |
 | 3 | `GET /facets`, deterministic `POST /recommendations` | Phase 2 |
-| 4 | Rank, explanation, summary, grounding tests | Phase 3 |
+| 4 | Groq-backed rank, explanation, summary, grounding tests | Phase 3, a Groq API key for the manual check |
 | 5 | Single page for the diner flow | Phase 3 endpoints; explanations appear once Phase 4 is done |
 | 6 | Manual confirmation of the success criteria | Phases 1 through 5 |
 

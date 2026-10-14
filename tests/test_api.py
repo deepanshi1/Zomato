@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import catalog as catalog_module
-from app.llm import LLMError
+from app.llm import LLMError, LLMInvalidJSON
 from app.llm import complete as REAL_COMPLETE  # captured before any fixture patches it
 from app.main import MODEL_FAILURE_MESSAGE, app
 from tests.conftest import FIXTURE_ROWS, FakeModel, restaurant
@@ -198,10 +198,12 @@ def test_invalid_json_body_is_400(client):
     [
         FakeModel(error=LLMError("Language model timed out.")),
         FakeModel(error=LLMError("Language model returned HTTP 500.")),
+        FakeModel(error=LLMError("Language model rate limit reached.")),
         FakeModel(replies=["not json", "still not json"]),
+        FakeModel(replies=[LLMInvalidJSON("bad"), LLMInvalidJSON("bad again")]),
         FakeModel(replies=['{"summary": "x", "recommendations": [{"id": "ghost", "rank": 1, "explanation": "x"}]}']),
     ],
-    ids=["timeout", "http-error", "invalid-json-twice", "only-unknown-ids"],
+    ids=["timeout", "http-error", "rate-limit", "invalid-json-twice", "json-validate-failed-twice", "only-unknown-ids"],
 )
 def test_model_failures_return_502_without_a_list(client, monkeypatch, model):
     monkeypatch.setattr("app.llm.complete", model)
@@ -210,6 +212,21 @@ def test_model_failures_return_502_without_a_list(client, monkeypatch, model):
     body = response.json()
     assert body["detail"] == MODEL_FAILURE_MESSAGE
     assert "recommendations" not in body
+
+
+def test_json_validate_failed_once_then_valid_returns_200(client, monkeypatch):
+    valid = '{"summary": "One pick.", "recommendations": [{"id": "it-best", "rank": 1, "explanation": "Great pizza."}]}'
+    monkeypatch.setattr("app.llm.complete", FakeModel(replies=[LLMInvalidJSON("bad"), valid]))
+    response = post(client)
+    assert response.status_code == 200
+    assert [card["id"] for card in response.json()["recommendations"]] == ["it-best"]
+
+
+def test_bad_response_format_fails_at_startup(monkeypatch):
+    monkeypatch.setenv("LLM_RESPONSE_FORMAT", "yaml")
+    with pytest.raises(ValueError, match="LLM_RESPONSE_FORMAT"):
+        with TestClient(app):
+            pass
 
 
 def test_unconfigured_model_returns_502_but_empty_pool_still_works(client, monkeypatch):

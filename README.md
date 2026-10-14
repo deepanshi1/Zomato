@@ -39,7 +39,7 @@ Design: `architecture.md`. Build steps: `implementation-plan.md`.
 
    `--env-file` loads the model settings. Without them, queries that match restaurants return HTTP 502; queries that match nothing still return an empty list.
 
-   `LLM_BASE_URL` is the provider's OpenAI-compatible base, for example `https://api.openai.com/v1` or `https://api.groq.com/openai/v1`. The client appends `/chat/completions`.
+   The model runs on Groq: `LLM_BASE_URL=https://api.groq.com/openai/v1`, a key from console.groq.com/keys, and `LLM_MODEL=openai/gpt-oss-120b` with `LLM_RESPONSE_FORMAT=json_schema` (see `.env.example`). The client appends `/chat/completions`. Groq's free tier rate-limits requests; a limited request returns 502 and can be retried after a few seconds.
 
 ## Tests
 

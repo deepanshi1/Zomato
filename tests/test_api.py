@@ -4,14 +4,16 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import catalog as catalog_module
-from app.main import PLACEHOLDER_EXPLANATION, app
-from tests.conftest import FIXTURE_ROWS, restaurant
+from app.llm import LLMError
+from app.llm import complete as REAL_COMPLETE  # captured before any fixture patches it
+from app.main import MODEL_FAILURE_MESSAGE, app
+from tests.conftest import FIXTURE_ROWS, FakeModel, restaurant
 
 SAMPLE = {"locality": "Banashankari", "budget": "medium", "cuisine": "Italian", "min_rating": 4.0}
 
 
 @pytest.fixture
-def client(catalog, tmp_path, monkeypatch):
+def client(catalog, fake_model, tmp_path, monkeypatch):
     facets = {"localities": catalog.localities, "cuisines": catalog.cuisines}
     (tmp_path / "facets.json").write_text(json.dumps(facets))
     monkeypatch.setenv("CATALOG_PATH", str(tmp_path / "catalog.parquet"))
@@ -75,8 +77,8 @@ def test_shortlist_numbers_match_catalog(client):
         assert card["rating"] == row["rating"]
         assert card["cost_for_two"] == row["cost_for_two"]
         assert card["url"] == row["url"]
-        assert card["explanation"] == PLACEHOLDER_EXPLANATION
-    assert body["summary"]
+        assert card["explanation"] == f"{row['name']} fits the request."
+    assert body["summary"] == "5 picks."
     assert body["filter_stats"]["matched"] == 6
     assert body["filter_stats"]["rules"][0]["in"] == len(FIXTURE_ROWS)
 
@@ -119,8 +121,9 @@ def test_unknown_extra_fields_are_ignored(client):
 
 # --- empty result ---------------------------------------------------------------
 
-def test_impossible_filter_returns_200_empty_with_stats(client):
+def test_impossible_filter_returns_200_empty_with_stats(client, fake_model):
     response = post(client, budget="high", min_rating=5.0)
+    assert fake_model.calls == []
     assert response.status_code == 200
     body = response.json()
     assert body["recommendations"] == []
@@ -186,6 +189,35 @@ def test_invalid_json_body_is_400(client):
         "/recommendations", content="{not json", headers={"Content-Type": "application/json"}
     )
     assert response.status_code == 400
+
+
+# --- model failures: 502 ----------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        FakeModel(error=LLMError("Language model timed out.")),
+        FakeModel(error=LLMError("Language model returned HTTP 500.")),
+        FakeModel(replies=["not json", "still not json"]),
+        FakeModel(replies=['{"summary": "x", "recommendations": [{"id": "ghost", "rank": 1, "explanation": "x"}]}']),
+    ],
+    ids=["timeout", "http-error", "invalid-json-twice", "only-unknown-ids"],
+)
+def test_model_failures_return_502_without_a_list(client, monkeypatch, model):
+    monkeypatch.setattr("app.llm.complete", model)
+    response = post(client)
+    assert response.status_code == 502
+    body = response.json()
+    assert body["detail"] == MODEL_FAILURE_MESSAGE
+    assert "recommendations" not in body
+
+
+def test_unconfigured_model_returns_502_but_empty_pool_still_works(client, monkeypatch):
+    monkeypatch.setattr("app.llm.complete", REAL_COMPLETE)
+    for name in ("LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL"):
+        monkeypatch.delenv(name, raising=False)
+    assert post(client).status_code == 502
+    assert post(client, budget="high", min_rating=5.0).status_code == 200
 
 
 # --- missing catalog: 503 ---------------------------------------------------------------

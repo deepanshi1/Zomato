@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from app.catalog import Catalog
@@ -44,6 +46,42 @@ FIXTURE_ROWS = [
     # Other localities
     restaurant("jn-it", "Jayanagar Italian", locality="Jayanagar", rating=4.9, votes=5000),
 ]
+
+
+class FakeModel:
+    """Stand-in for app.llm.complete. Never touches the network.
+
+    With `replies`, returns them in order. Without, ranks every candidate in the
+    order given, up to max_recommendations, with a short explanation each.
+    """
+
+    def __init__(self, replies=None, error=None):
+        self.replies = list(replies) if replies is not None else None
+        self.error = error
+        self.calls = []
+
+    def __call__(self, system, user):
+        self.calls.append((system, user))
+        if self.error is not None:
+            raise self.error
+        if self.replies is not None:
+            return self.replies.pop(0)
+        message = json.loads(user)
+        picks = message["candidates"][: message["max_recommendations"]]
+        return json.dumps({
+            "summary": f"{len(picks)} picks.",
+            "recommendations": [
+                {"id": c["id"], "rank": i, "explanation": f"{c['name']} fits the request."}
+                for i, c in enumerate(picks, start=1)
+            ],
+        })
+
+
+@pytest.fixture
+def fake_model(monkeypatch):
+    model = FakeModel()
+    monkeypatch.setattr("app.llm.complete", model)
+    return model
 
 
 @pytest.fixture

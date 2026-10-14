@@ -20,6 +20,7 @@ from app.catalog import (
     filter_candidates,
     get_catalog,
 )
+from app.recommend import RecommendationError, rank_with_model
 from app.schemas import (
     MAX_LIMIT,
     ErrorResponse,
@@ -33,9 +34,8 @@ from app.schemas import (
 logger = logging.getLogger(__name__)
 
 DEFAULT_LIMIT = 5
-PLACEHOLDER_EXPLANATION = (
-    "Ranked by rating, then number of votes. "
-    "Personalized explanations appear once the language model is connected."
+MODEL_FAILURE_MESSAGE = (
+    "We found matching restaurants but could not rank them right now. Please try again in a moment."
 )
 
 
@@ -148,7 +148,11 @@ def facets() -> Facets:
 @app.post(
     "/recommendations",
     response_model=RecommendationResponse,
-    responses={400: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse},
+        502: {"model": ErrorResponse},
+        503: {"model": ErrorResponse},
+    },
 )
 def recommendations(body: RecommendationRequest):
     settings = get_settings()
@@ -171,26 +175,31 @@ def recommendations(body: RecommendationRequest):
         min_rating=body.min_rating,
         pool_size=settings.candidate_pool,
     )
-    limit = body.limit or settings.default_limit
-    shortlist = result.candidates[:limit]
+    try:
+        ranked = rank_with_model(
+            locality=locality,
+            cuisine=body.cuisine,
+            budget=body.budget,
+            min_rating=body.min_rating,
+            preferences=body.preferences,
+            limit=body.limit or settings.default_limit,
+            candidates=result.candidates,
+        )
+    except RecommendationError:
+        return _error(502, MODEL_FAILURE_MESSAGE)
 
+    # Name, cuisines, rating, cost, and url always come from the catalog row.
     cards = [
         Recommendation(
-            id=row["id"],
-            rank=rank,
-            name=row["name"],
-            cuisines=row["cuisines"],
-            rating=row["rating"],
-            cost_for_two=row["cost_for_two"],
-            explanation=PLACEHOLDER_EXPLANATION,
-            url=row.get("url"),
+            id=pick.row["id"],
+            rank=pick.rank,
+            name=pick.row["name"],
+            cuisines=pick.row["cuisines"],
+            rating=pick.row["rating"],
+            cost_for_two=pick.row["cost_for_two"],
+            explanation=pick.explanation,
+            url=pick.row.get("url"),
         )
-        for rank, row in enumerate(shortlist, start=1)
+        for pick in ranked.picks
     ]
-    summary = None
-    if cards:
-        summary = (
-            f"Top {len(cards)} of {result.matched} matching restaurants in {locality}, "
-            "ordered by rating and then votes."
-        )
-    return RecommendationResponse(summary=summary, recommendations=cards, filter_stats=result.stats())
+    return RecommendationResponse(summary=ranked.summary, recommendations=cards, filter_stats=result.stats())

@@ -34,8 +34,12 @@ Design: `architecture.md`. Build steps: `implementation-plan.md`.
 5. Start the API:
 
    ```bash
-   uvicorn app.main:app --reload
+   uvicorn app.main:app --reload --env-file .env
    ```
+
+   `--env-file` loads the model settings. Without them, queries that match restaurants return HTTP 502; queries that match nothing still return an empty list.
+
+   `LLM_BASE_URL` is the provider's OpenAI-compatible base, for example `https://api.openai.com/v1` or `https://api.groq.com/openai/v1`. The client appends `/chat/completions`.
 
 ## Tests
 

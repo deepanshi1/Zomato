@@ -41,6 +41,8 @@ Design: `architecture.md`. Build steps: `implementation-plan.md`.
 
    The model runs on Groq: `LLM_BASE_URL=https://api.groq.com/openai/v1`, a key from console.groq.com/keys, and `LLM_MODEL=openai/gpt-oss-120b` with `LLM_RESPONSE_FORMAT=json_schema` (see `.env.example`). The client appends `/chat/completions`. Groq's free tier rate-limits requests; a limited request returns 502 and can be retried after a few seconds.
 
+6. Open **http://localhost:8000** and pick a locality, cuisine, budget, and minimum rating. The API docs are at http://localhost:8000/docs.
+
 ## Tests
 
 ```bash

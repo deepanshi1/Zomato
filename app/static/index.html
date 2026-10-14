@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZomatoReco — Bangalore restaurant picks</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23c8102e'/%3E%3Ctext x='16' y='22' font-size='17' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <h1>ZomatoReco</h1>
+    <p>Tell us what you feel like. We search Bangalore's Zomato listings and explain the best fits.</p>
+  </header>
+
+  <main class="layout">
+    <form id="search" class="panel" novalidate>
+      <div class="field">
+        <label for="locality">Locality</label>
+        <input id="locality" name="locality" list="locality-options" autocomplete="off"
+               placeholder="Loading localities…" required disabled>
+        <datalist id="locality-options"></datalist>
+        <p class="field-error" id="locality-error" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="cuisine">Cuisine</label>
+        <input id="cuisine" name="cuisine" list="cuisine-options" autocomplete="off"
+               placeholder="Loading cuisines…" required disabled>
+        <datalist id="cuisine-options"></datalist>
+        <p class="field-error" id="cuisine-error" hidden></p>
+      </div>
+
+      <fieldset class="field">
+        <legend>Budget for two</legend>
+        <div class="segmented" role="radiogroup">
+          <label><input type="radio" name="budget" value="low"><span>Low<small>up to ₹400</small></span></label>
+          <label><input type="radio" name="budget" value="medium" checked><span>Medium<small>₹401–800</small></span></label>
+          <label><input type="radio" name="budget" value="high"><span>High<small>above ₹800</small></span></label>
+        </div>
+        <p class="field-error" id="budget-error" hidden></p>
+      </fieldset>
+
+      <div class="field">
+        <label for="min_rating">Minimum rating <output id="rating-value" for="min_rating">4.0</output></label>
+        <input id="min_rating" name="min_rating" type="range" min="0" max="5" step="0.1" value="4">
+        <div class="range-scale" aria-hidden="true"><span>0</span><span>5</span></div>
+        <p class="field-error" id="min_rating-error" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="preferences">Anything else? <span class="optional">optional</span></label>
+        <textarea id="preferences" name="preferences" rows="3" maxlength="300"
+                  placeholder="family-friendly, quick service"></textarea>
+        <p class="hint"><span id="pref-count">0</span>/300</p>
+        <p class="field-error" id="preferences-error" hidden></p>
+      </div>
+
+      <button id="submit" type="submit" disabled>Find restaurants</button>
+      <p class="form-message" id="form-message" role="alert" hidden></p>
+    </form>
+
+    <section id="results" class="results" aria-live="polite" aria-busy="false">
+      <div id="intro" class="placeholder">
+        <p>Your shortlist will appear here.</p>
+      </div>
+
+      <div id="loading" class="placeholder" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Finding and ranking restaurants…</p>
+      </div>
+
+      <div id="error" class="notice notice-error" role="alert" hidden></div>
+
+      <div id="empty" class="notice" hidden>
+        <p id="empty-reason"></p>
+        <p>Try a nearby locality, a broader cuisine, a different budget, or a lower minimum rating.</p>
+      </div>
+
+      <div id="shortlist" hidden>
+        <p id="summary" class="summary" hidden></p>
+        <ol id="cards" class="cards"></ol>
+        <p id="pool-note" class="hint"></p>
+      </div>
+    </section>
+  </main>
+
+  <template id="card-template">
+    <li class="card">
+      <div class="card-head">
+        <span class="rank"></span>
+        <h2 class="name"></h2>
+      </div>
+      <p class="cuisines"></p>
+      <dl class="facts">
+        <div><dt>Rating</dt><dd class="rating"></dd></div>
+        <div><dt>Cost for two</dt><dd class="cost"></dd></div>
+      </dl>
+      <p class="explanation"></p>
+      <a class="link" target="_blank" rel="noopener noreferrer" hidden>View on Zomato</a>
+    </li>
+  </template>
+</body>
+</html>

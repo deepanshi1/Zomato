@@ -116,7 +116,7 @@ def describe_budget(budget: str) -> str:
 def build_user_message(
     *,
     locality: str,
-    cuisine: str,
+    cuisine: str | None,
     budget: str,
     min_rating: float,
     preferences: str | None,
@@ -126,7 +126,7 @@ def build_user_message(
     message = {
         "request": {
             "locality": locality,
-            "cuisine": cuisine,
+            "cuisine": cuisine or "any (no cuisine filter)",
             "budget": describe_budget(budget),
             "min_rating": min_rating,
         },
@@ -231,7 +231,7 @@ def ground(data: dict[str, Any], candidates: list[dict[str, Any]], limit: int) -
 def rank_with_model(
     *,
     locality: str,
-    cuisine: str,
+    cuisine: str | None,
     budget: str,
     min_rating: float,
     preferences: str | None,

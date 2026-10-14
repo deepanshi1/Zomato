@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 MAX_LIMIT = 8
 MAX_PREFERENCES_CHARS = 300
+# Cuisine values that mean "no cuisine filter".
+ALL_CUISINES = {"all", "all cuisines", "any"}
 
 Budget = Literal["low", "medium", "high"]
 
@@ -17,15 +19,24 @@ class RecommendationRequest(BaseModel):
 
     locality: str = Field(min_length=1)
     budget: Budget
-    cuisine: str = Field(min_length=1)
+    cuisine: str | None = None  # omitted, blank, or "all" means every cuisine
     min_rating: float = Field(ge=0, le=5, allow_inf_nan=False)
     preferences: str | None = Field(default=None, max_length=MAX_PREFERENCES_CHARS)
     limit: int | None = Field(default=None, ge=1, le=MAX_LIMIT)
 
-    @field_validator("locality", "cuisine", mode="before")
+    @field_validator("locality", mode="before")
     @classmethod
     def _strip(cls, value):
         return value.strip() if isinstance(value, str) else value
+
+    @field_validator("cuisine", mode="before")
+    @classmethod
+    def _optional_cuisine(cls, value):
+        if isinstance(value, str):
+            value = " ".join(value.split())
+            if not value or value.casefold() in ALL_CUISINES:
+                return None
+        return value
 
     @field_validator("budget", mode="before")
     @classmethod

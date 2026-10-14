@@ -148,6 +148,21 @@ def test_unknown_cuisine_is_400(client):
     assert field_errors(response) == {"cuisine"}
 
 
+@pytest.mark.parametrize("cuisine", [None, "", "   ", "all", "ALL", "All cuisines", "any"])
+def test_cuisine_is_optional_and_all_means_every_cuisine(client, fake_model, cuisine):
+    body = {k: v for k, v in SAMPLE.items() if k != "cuisine"}
+    if cuisine is not None:
+        body["cuisine"] = cuisine
+    response = client.post("/recommendations", json={**body, "limit": 8})
+    assert response.status_code == 200
+    ids = {card["id"] for card in response.json()["recommendations"]}
+    assert "ni" in ids                      # north indian, medium, 4.1: only matches without a cuisine filter
+    stats = response.json()["filter_stats"]["rules"][1]
+    assert stats["rule"] == "cuisine" and stats["removed"] == 0
+    message = json.loads(fake_model.calls[-1][1])
+    assert message["request"]["cuisine"] == "any (no cuisine filter)"
+
+
 def test_unknown_locality_and_cuisine_report_both(client):
     response = post(client, locality="Nowhere", cuisine="sushi")
     assert field_errors(response) == {"locality", "cuisine"}
@@ -164,7 +179,7 @@ def test_unknown_locality_and_cuisine_report_both(client):
         ({"limit": 9}, "limit"),
         ({"preferences": "x" * 301}, "preferences"),
         ({"locality": ""}, "locality"),
-        ({"cuisine": "   "}, "cuisine"),
+        ({"cuisine": 42}, "cuisine"),
     ],
 )
 def test_out_of_range_values_are_400(client, overrides, field):

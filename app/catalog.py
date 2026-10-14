@@ -124,26 +124,31 @@ def filter_candidates(
     rows: list[dict[str, Any]],
     *,
     locality: str,
-    cuisine: str,
+    cuisine: str | None,
     budget: str,
     min_rating: float,
     pool_size: int = DEFAULT_CANDIDATE_POOL,
 ) -> FilterResult:
     """Apply locality, cuisine, budget, and rating rules in order, then sort and cap.
 
-    Survivors are sorted by rating, then votes (both descending), then id so
-    ties come out in the same order on every request. Input rows are not modified.
+    A cuisine of None means all cuisines: the cuisine rule still reports its
+    stats but removes nothing. Survivors are sorted by rating, then votes (both
+    descending), then id so ties come out in the same order on every request.
+    Input rows are not modified.
     """
     if budget not in BUDGET_BANDS:
         raise ValueError(f"Unknown budget {budget!r}; expected one of {sorted(BUDGET_BANDS)}")
     locality_key = _fold(locality)
-    cuisine_key = _fold(cuisine)
-    if not locality_key or not cuisine_key:
-        raise ValueError("locality and cuisine must be non-empty")
+    if not locality_key:
+        raise ValueError("locality must be non-empty")
+    cuisine_key = _fold(cuisine) if cuisine is not None else None
+    if cuisine_key == "":
+        raise ValueError("cuisine must be non-empty, or None for all cuisines")
 
     rules = [
         ("locality", lambda r: _fold(r.get("locality")) == locality_key),
-        ("cuisine", lambda r: any(cuisine_key in tag for tag in r.get("cuisines") or [])),
+        ("cuisine", lambda r: cuisine_key is None
+            or any(cuisine_key in tag for tag in r.get("cuisines") or [])),
         ("budget", lambda r: in_budget(r.get("cost_for_two"), budget)),
         ("min_rating", lambda r: r.get("rating") is not None
             and r["rating"] + _RATING_EPSILON >= min_rating),

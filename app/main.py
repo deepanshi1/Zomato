@@ -176,7 +176,7 @@ def recommendations(body: RecommendationRequest):
     errors = []
     if locality is None:
         errors.append(FieldError(field="locality", message=f"'{body.locality}' is not a known locality."))
-    if not catalog.has_cuisine(body.cuisine):
+    if body.cuisine is not None and not catalog.has_cuisine(body.cuisine):
         errors.append(FieldError(field="cuisine", message=f"'{body.cuisine}' does not match any cuisine in the catalog."))
     if errors:
         return _error(400, "Invalid request.", errors)

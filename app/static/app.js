@@ -6,6 +6,8 @@
 const REQUEST_TIMEOUT_MS = 60000;
 const BUDGET_LABELS = { low: "low (up to ₹400)", medium: "medium (₹401–800)", high: "high (above ₹800)" };
 const FIELDS = ["locality", "cuisine", "budget", "min_rating", "preferences"];
+const ALL_CUISINES = "All cuisines";
+const ALL_CUISINE_WORDS = new Set(["", "all", "all cuisines", "any"]);
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -67,9 +69,9 @@ async function loadFacets() {
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.detail || "The restaurant list is not available right now.");
     fillOptions($("locality-options"), facets.locality, body.localities || [], (v) => v);
-    fillOptions($("cuisine-options"), facets.cuisine, body.cuisines || [], titleCase);
+    fillOptions($("cuisine-options"), facets.cuisine, [ALL_CUISINES, ...(body.cuisines || [])], titleCase);
     els.locality.placeholder = "Start typing, e.g. Banashankari";
-    els.cuisine.placeholder = "Start typing, e.g. Italian";
+    els.cuisine.placeholder = "All cuisines, or type e.g. Italian";
     els.locality.disabled = els.cuisine.disabled = els.submit.disabled = false;
   } catch (err) {
     els.locality.placeholder = els.cuisine.placeholder = "Unavailable";
@@ -120,10 +122,19 @@ function checkFacet(field, label) {
   return match;
 }
 
+// Cuisine is optional: blank or "All cuisines" means no cuisine filter (returns ALL_CUISINES).
+function checkCuisine() {
+  if (ALL_CUISINE_WORDS.has(fold(els.cuisine.value))) {
+    els.cuisine.value = "";
+    return ALL_CUISINES;
+  }
+  return checkFacet("cuisine", "cuisine");
+}
+
 function readForm() {
   clearErrors();
   const locality = checkFacet("locality", "locality");
-  const cuisine = checkFacet("cuisine", "cuisine");
+  const cuisine = checkCuisine();
   if (!locality || !cuisine) {
     showFormMessage("Please fix the highlighted fields.");
     (locality ? els.cuisine : els.locality).focus();
@@ -132,7 +143,7 @@ function readForm() {
   const preferences = els.preferences.value.trim();
   return {
     locality,
-    cuisine,
+    ...(cuisine !== ALL_CUISINES ? { cuisine } : {}),
     budget: els.form.elements.budget.value,
     min_rating: Number(els.rating.value),
     ...(preferences ? { preferences } : {}),
@@ -192,7 +203,8 @@ function renderCard(rec) {
 
 function emptyReason(stats, query) {
   const out = Object.fromEntries(stats.rules.map((r) => [r.rule, r.out]));
-  const cuisine = titleCase(query.cuisine);
+  const cuisine = query.cuisine ? titleCase(query.cuisine) : null;
+  const kind = cuisine ? `${cuisine} restaurant` : "restaurant";
   const where = `in ${query.locality}`;
   const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
   if (!out.locality) return `We have no restaurants listed ${where}.`;
@@ -200,10 +212,10 @@ function emptyReason(stats, query) {
     return `We found ${plural(out.locality, "restaurant")} ${where}, but none serve ${cuisine}.`;
   }
   if (!out.budget) {
-    return `We found ${plural(out.cuisine, `${cuisine} restaurant`)} ${where}, ` +
+    return `We found ${plural(out.cuisine, kind)} ${where}, ` +
       `but none in the ${BUDGET_LABELS[query.budget]} budget.`;
   }
-  return `We found ${plural(out.budget, `${cuisine} restaurant`)} ${where} in your budget, ` +
+  return `We found ${plural(out.budget, kind)} ${where} in your budget, ` +
     `but none rated ${query.min_rating.toFixed(1)} or higher.`;
 }
 
@@ -285,7 +297,7 @@ async function submit(event) {
     if (requestId === latestRequest) {
       inFlight = null;
       els.submit.disabled = false;
-      els.submit.textContent = "Find restaurants";
+      els.submit.textContent = "Find my food";
     }
   }
 }

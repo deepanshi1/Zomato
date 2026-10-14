@@ -49,6 +49,17 @@ def test_cuisine_substring_matches_any_tag(rows):
     assert ids(result) == ["ni"]
 
 
+def test_no_cuisine_means_all_cuisines(rows):
+    result = run(rows, cuisine=None, min_rating=4.0)
+    assert {"ni", "it-best"} <= set(ids(result))
+    assert result.stats()["rules"][1] == {"rule": "cuisine", "in": 13, "removed": 0, "out": 13}
+
+
+def test_blank_cuisine_is_rejected(rows):
+    with pytest.raises(ValueError):
+        run(rows, cuisine="  ")
+
+
 def test_cuisine_matches_tag_other_than_first(rows):
     assert "it-best" in ids(run(rows, cuisine="Italian"))
     assert ids(run(rows, cuisine="chinese")) == ["ni"]

@@ -276,6 +276,18 @@ def test_system_prompt_mentions_json_for_json_object_mode():
     assert "JSON" in SYSTEM_PROMPT
 
 
+def test_system_prompt_forbids_category_inference_and_budget_misstatements():
+    # Added after the Phase 6 review: the model inferred "family-friendly" from
+    # "Casual Dining" and called an in-band cost "above the budget threshold".
+    assert "Do not infer a trait from a broad category" in SYSTEM_PROMPT
+    assert '"Casual Dining"' in SYSTEM_PROMPT
+    assert "Never describe a candidate's cost as above or below the budget" in SYSTEM_PROMPT
+    # The stricter evidence rule made the model return one pick out of twenty;
+    # the prompt now asks for a full list with weaker fits ranked lower.
+    assert 'Return exactly "max_recommendations" items' in SYSTEM_PROMPT
+    assert "Do not drop them" in SYSTEM_PROMPT
+
+
 def test_default_model_path_sends_the_reply_schema(pool, monkeypatch):
     model = FakeModel()
     monkeypatch.setattr("app.llm.complete", model)

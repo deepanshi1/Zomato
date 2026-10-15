@@ -46,7 +46,7 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | ING-22 | `"North Indian, Chinese"` | `["north indian", "chinese"]` | Specified |
 | ING-23 | Cuisines with extra spaces, a trailing comma, or empty segments (`"Chinese, , Thai,"`) | Trim each item and drop empty ones: `["chinese", "thai"]` | Decision needed |
 | ING-24 | The same cuisine twice in one row (`"Chinese, chinese"`) | Remove duplicates after lowercasing | Decision needed |
-| ING-25 | Missing `cuisines` | Empty list. The row can never pass the cuisine filter | Decision needed |
+| ING-25 | Missing `cuisines` | Empty list. The row never passes a chosen cuisine, but it can appear when the diner asks for all cuisines | Specified |
 | ING-26 | Missing `location` | Keep the row with a null locality. It never matches a locality filter and stays out of `facets.json` | Decision needed |
 | ING-27 | Localities that differ only by case or spacing (`BTM`, `btm `) | Collapse to one canonical display value in `facets.json`. Match case-insensitively | Decision needed |
 | ING-28 | `rest_type` missing or with empty segments | Empty list, same trimming as ING-23 | Decision needed |
@@ -120,6 +120,9 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | FLT-19 | Locality removes every row | `filter_stats` shows the locality rule removed everything, and later rules show 0 in and 0 removed | Specified (stats per rule) |
 | FLT-20 | Restaurants in the filtered set with null votes | Sort them as 0 votes | Decision needed |
 | FLT-21 | The filter changes the cached catalog | It must not. Filters return copies or views and never sort or edit the shared frame in place | Decision needed |
+| FLT-22 | No cuisine (all cuisines) | The cuisine rule keeps every row. Restaurants of every cuisine, including rows with an empty `cuisines` list, reach the budget rule | Specified |
+| FLT-23 | No cuisine, then the stats | `filter_stats` still lists four rules; the cuisine rule shows `removed: 0` and `out` equal to `in` | Specified |
+| FLT-24 | Cuisine passed to the filter as a blank string (not `None`) | `ValueError`. Blank must be turned into `None` before the filter; the API does this | Specified |
 
 ---
 
@@ -130,12 +133,12 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | ID | Scenario | Expected behavior | Status |
 | --- | --- | --- | --- |
 | API-01 | Locality not in `facets.json` | 400, with a field error saying the value is not in the catalog | Specified |
-| API-02 | Cuisine not in any tag | 400 | Specified |
+| API-02 | A cuisine is given but is not in any tag | 400 on the `cuisine` field | Specified |
 | API-03 | Budget `Medium`, `MEDIUM`, or `mid` | Decision needed: accept any case of the three values, reject `mid` with 400 |
 | API-04 | `min_rating` -0.1 or 5.1 | 400 | Specified |
 | API-05 | `min_rating` is the string `"4"` | Decision needed: Pydantic accepts it by default. Use strict mode, or allow it and document it |
 | API-06 | `min_rating` is `NaN` or `Infinity` | 400 | Decision needed |
-| API-07 | A required field is missing | 400 with that field's error | Specified |
+| API-07 | A required field (`locality`, `budget`, `min_rating`) is missing | 400 with that field's error. A missing `cuisine` is not an error (API-19) | Specified |
 | API-08 | **FastAPI returns 422 for validation errors by default; the docs require 400** | Add a `RequestValidationError` handler that returns 400 with the same field-error shape | Decision needed (implementation detail the plan relies on) |
 | API-09 | Body is not JSON, is empty, or has the wrong `Content-Type` | 400 | Decision needed |
 | API-10 | Unknown extra fields such as `city` | Ignore them, or 400 if the model forbids extras | Decision needed |
@@ -146,7 +149,10 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | API-15 | `limit` omitted | Use `DEFAULT_LIMIT` (5) | Specified |
 | API-16 | `limit` 0, negative, or 9 | 400 | Specified (max 8). Minimum 1 is a decision |
 | API-17 | `limit` 2.5 or `"3"` | 400, or coerced | Decision needed |
-| API-18 | Locality or cuisine is an empty string | 400 | Decision needed |
+| API-18 | Locality is an empty string | 400 | Specified |
+| API-19 | `cuisine` omitted, `null`, empty, only spaces, or `all` / `ALL` / `All cuisines` / `any` | All cuisines: no cuisine filter, 200 | Specified |
+| API-30 | `cuisine` is not a string (for example `42`) | 400 on the `cuisine` field | Specified |
+| API-31 | A catalog cuisine tag is literally named `all` or `any` | It could never be selected on its own. None exists in the current 106 tags; recheck after a catalog refresh | Specified (known limitation) |
 
 ### 3.2 Responses and runtime state
 
@@ -199,6 +205,8 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | LLM-30 | `summary` missing, null, or not a string | Return no summary. The UI hides the paragraph | Specified (summary is optional) |
 | LLM-31 | Id has a different case or extra spaces | Trim before lookup. Case-sensitive match on a hex hash | Decision needed |
 | LLM-32 | Explanation is very long | Cut it for display (for example 600 characters) | Decision needed |
+| LLM-34 | No cuisine was chosen | The prompt sends the cuisine as “any (no cuisine filter)” so the model does not favour or penalise any cuisine | Specified |
+| LLM-35 | No cuisine, and the pool mixes many cuisines | Explanations should tie each pick to the preferences, budget, or rating, not to a cuisine the diner never asked for. Phase 6 checks this | Specified (prompt duty) |
 | LLM-33 | Explanation mentions a rating or price that differs from the catalog | The card numbers come from the catalog. The text is not rewritten. The prompt rule covers this, and the Phase 6 check looks for it | Specified (prompt duty). Not enforced in code |
 
 ### 4.3 Provider failures
@@ -222,7 +230,7 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | ID | Scenario | Expected behavior | Status |
 | --- | --- | --- | --- |
 | UI-01 | `GET /facets` fails or returns 503 on load | Show a sentence saying the catalog is unavailable. Disable submit | Decision needed |
-| UI-02 | User types a locality or cuisine not in the facets | Submission is blocked | Specified |
+| UI-02 | User types a locality not in the facets, or a cuisine that is neither a facet nor “All cuisines” | Submission is blocked with a message next to the field; no request is sent | Specified |
 | UI-03 | Long facet lists (about 93 localities, 100+ cuisines) | Searchable input or sorted select | Specified |
 | UI-04 | Rating slider at 0 or 5, or typed value 4.25 | Accept 0 and 5. Snap 4.25 to step 0.1, or let the server reject it | Decision needed |
 | UI-05 | User clicks submit twice, or changes the form during a request | Disable submit while loading, or ignore responses from older requests | Decision needed |
@@ -236,6 +244,13 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | UI-13 | Long restaurant names or cuisine lists | Text wraps and the card does not overflow at phone width | Decision needed |
 | UI-14 | Cost display | Format with an INR sign and Indian grouping (`₹1,200 for two`) | Decision needed |
 | UI-15 | Placeholder explanation before Phase 4 is merged | Shown as is. It states that ranking is by rating and votes | Specified |
+| UI-16 | Cuisine left blank, or set to “All cuisines”, “all”, or “any” | The request has no `cuisine` field; the field is cleared to show its “All cuisines” placeholder | Specified |
+| UI-17 | Empty result with no cuisine chosen | The sentence says “restaurants” rather than naming a cuisine, for example “We found 12 restaurants in Jayanagar in your budget, but none rated 4.9 or higher.” | Specified |
+| UI-18 | Locality typed in another case (`banashankari`) | Accepted and snapped to the catalog spelling (`Banashankari`) before the request | Specified |
+| UI-19 | Narrow screen (400px) | One column, no horizontal scroll; the floating side illustrations are hidden below 1240px | Specified |
+| UI-20 | Diner prefers reduced motion | Bobbing illustrations and card pop-in stop; the maki spinner slows down | Specified |
+| UI-21 | Dark mode | Pastel accents stay; text on pastel surfaces stays dark plum and outlines switch to a lighter line color so they stay visible | Specified |
+| UI-22 | The browser asks for `/favicon.ico` | The page ships an inline SVG icon, so no 404 appears in the console | Specified |
 
 ---
 
@@ -265,18 +280,22 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | E2E-02 | Rating 0 query | The pool is capped at 20 and the model receives 20 profiles | Specified |
 | E2E-03 | An explanation claims a trait (for example "kid play area") the profile does not support | Counts as a prompt defect. Record it in the README and tighten the prompt | Specified |
 | E2E-04 | Rating or cost on a card differs from the catalog row | Grounding bug. Blocks release | Specified |
+| E2E-05 | “All cuisines” query (for example Jayanagar, low, 4.3) | Returns restaurants of more than one cuisine, each grounded in the catalog | Specified |
 
 ---
 
-## Open decisions to settle first
+## Key decisions
 
-These affect public behavior or test fixtures, so they are worth deciding before Phase 1 and Phase 3 code is written:
+These affected public behavior or test fixtures. Most were settled while building Phases 1–5; the table records what was chosen. Rows elsewhere in this file still marked “Decision needed” follow the proposed default unless noted here.
 
-1. **422 vs 400** (API-08): add the exception handler so validation returns 400, as the architecture requires.
-2. **Cuisine matching** (FLT-04): keep plain substring, or match whole words or exact tags.
-3. **Tie-breaking** (ING-53, FLT-15): make dedup and sorting fully deterministic.
-4. **Rating and cost parsing limits** (ING-02, ING-05–08, ING-13–15).
-5. **Empty preferences** (API-13) and **preferences over the cap** (API-12: reject or cut).
-6. **Malformed but parseable model items** (LLM-23 to LLM-28): duplicates, missing ranks, missing explanations.
-7. **Missing API key at startup** (LLM-45): 502 or 503, and whether empty-pool queries still work.
-8. **HTML escaping in the UI** (UI-11): required, since names and reviews come from scraped data and explanations come from a model.
+| # | Decision | Chosen behavior |
+| --- | --- | --- |
+| 1 | **422 vs 400** (API-08) | A `RequestValidationError` handler returns 400 with `{detail, errors: [{field, message}]}` |
+| 2 | **Cuisine matching** (FLT-04) | **Still open.** Plain substring matching is kept, so `tea` also matches `steak` |
+| 3 | **Tie-breaking** (ING-53, FLT-15) | Dedup keeps the first row seen on a full tie; the filter sorts by rating, then votes, then `id` |
+| 4 | **Rating and cost parsing** (ING-02, ING-05–08, ING-13–15) | Spaces around `/` and bare numbers are accepted; ratings outside 0–5 and `8/10` become null; `0/5` is `0.0`; `450.0` becomes `450`; cost of 0 or less, or with a `₹` sign, becomes null |
+| 5 | **Preferences** (API-12, API-13) | Blank means no preferences; over 300 characters is rejected with 400, not cut |
+| 6 | **Malformed model items** (LLM-23 to LLM-28) | Repeated ids keep the first; missing or non-numeric ranks use list position; items with no explanation are dropped; ranks are renumbered 1..n |
+| 7 | **Missing API key** (LLM-45) | The server starts; requests that need the model return 502; empty-pool requests still return 200 |
+| 8 | **HTML in the UI** (UI-11) | All server text is inserted with `textContent` |
+| 9 | **Cuisine optional** (API-19, FLT-22, UI-16) | Cuisine may be omitted or “all”; the cuisine rule then removes nothing but still reports stats |

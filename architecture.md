@@ -6,7 +6,7 @@ The catalog is the Hugging Face dataset [ManikaSaini/zomato-restaurant-recommend
 
 ## Design principles
 
-1. **Filter before the model.** Location, cuisine, budget, and minimum rating are deterministic. The LLM ranks and explains a small candidate set. It does not search the full catalog.
+1. **Filter before the model.** Location, cuisine (when the diner picks one), budget, and minimum rating are deterministic. The LLM ranks and explains a small candidate set. It does not search the full catalog.
 2. **Ground every recommendation.** Each result must refer to a restaurant id that survived filtering. Names, ratings, cuisines, and costs shown in the UI come from the catalog, and the model supplies rank and explanation only.
 3. **Keep prompts small.** Full `reviews_list` values can be over a megabyte. The prompt receives a compact profile: identity, rating, votes, cost, cuisines, restaurant type, liked dishes, and at most one short review excerpt.
 4. **Prepare data once.** Download, clean, and deduplicate offline. A recommendation request reads a local catalog and does not hit Hugging Face.
@@ -29,7 +29,7 @@ flowchart LR
 
 | Actor | Responsibility |
 | --- | --- |
-| Diner | Chooses locality, budget, cuisine, minimum rating, and optional free-text preferences |
+| Diner | Chooses locality, budget, minimum rating, an optional cuisine (or all cuisines), and optional free-text preferences |
 | Web UI | Collects input, calls the API, and renders the ranked shortlist |
 | Recommendation API | Validates input, runs the filter, builds the prompt, calls the model, and returns grounded results |
 | Local catalog | Cleaned, deduplicated restaurants ready for filtering |
@@ -47,7 +47,7 @@ sequenceDiagram
 
     U->>A: POST /recommendations
     A->>A: Validate preferences
-    A->>C: Filter by locality, cuisine, budget, rating
+    A->>C: Filter by locality, cuisine (if given), budget, rating
     C-->>A: Matching restaurants
     A->>A: Rank by rating and votes, keep top N profiles
     alt No candidates
@@ -136,21 +136,27 @@ A small HTTP service. FastAPI is a good fit because the ingestion code, filterin
 | --- | --- |
 | `locality` | Required. Case-insensitive match against known localities |
 | `budget` | Required. One of `low`, `medium`, `high` |
-| `cuisine` | Required. Case-insensitive substring match against any cuisine tag |
+| `cuisine` | Optional. Case-insensitive substring match against any cuisine tag. Omitted, blank, `all`, `all cuisines`, or `any` means all cuisines (no cuisine filter) |
 | `min_rating` | Required. Number from 0 to 5 |
 | `preferences` | Optional free text, length-capped (for example 300 characters) |
 | `limit` | Optional. Default 5, maximum 8 |
 
 `GET /facets` returns sorted localities and cuisines from `facets.json` so the form does not invent values the catalog cannot match.
 
-Validation failures return HTTP 400 with field errors. A valid query that matches nothing returns HTTP 200 with an empty list and a `filter_stats` object.
+Validation failures return HTTP 400 with field errors. A cuisine that is given but matches no tag is a validation failure; a missing cuisine is not. A valid query that matches nothing returns HTTP 200 with an empty list and a `filter_stats` object.
+
+A request for every cuisine looks like this:
+
+```json
+{ "locality": "Jayanagar", "budget": "low", "min_rating": 4.3 }
+```
 
 ### 4. Candidate filter
 
 Pure functions over the in-memory catalog (loaded once at process start). Order of operations:
 
 1. Locality equality on the normalized locality.
-2. Cuisine tag contains the requested cuisine.
+2. Cuisine tag contains the requested cuisine. With no cuisine, this rule keeps every row but still reports its counts, so `filter_stats` always lists the same four rules.
 3. Cost falls inside the budget band.
 4. Rating is present and greater than or equal to `min_rating`.
 5. Sort the survivors by rating descending, then votes descending.
@@ -162,7 +168,7 @@ The pre-sort is a recall aid. The model may reorder the pool using cuisine fit, 
 
 ### 5. Prompt and model client
 
-One chat completion per request. The provider sits behind a thin interface (`complete(system, user) -> str`) so the HTTP and parsing code stay the same for OpenAI-compatible APIs, Groq, Gemini, or a local model. The model name, base URL, and API key come from environment variables.
+One chat completion per request. The provider is Groq (`openai/gpt-oss-120b` by default), reached through its OpenAI-compatible API. It sits behind a thin interface (`complete(system, user) -> str`) so the HTTP and parsing code stay the same for other OpenAI-compatible providers or a local model. The model name, base URL, API key, and response format come from environment variables. By default the client asks for strict JSON Schema output; see `implementation-plan.md` Phase 4 for the Groq details.
 
 **System prompt duties**
 
@@ -174,6 +180,7 @@ One chat completion per request. The provider sits behind a thin interface (`com
 
 **User message contents**
 
+- The request: locality, cuisine (or “any (no cuisine filter)” when none was chosen, so the model does not favour one), budget band with its ₹ range, and minimum rating.
 - The normalized preferences.
 - A JSON array of candidate profiles: `id`, `name`, `locality`, `cuisines`, `rest_type`, `cost_for_two`, `rating`, `votes`, `online_order`, `book_table`, `dish_liked`, `review_excerpt`.
 
@@ -205,18 +212,27 @@ Temperature stays low (around 0.2) so rankings are stable across repeated clicks
 
 ### 6. Web UI
 
-A single page is enough for the success criteria.
+A single page served by FastAPI (`app/static/`: HTML, CSS, and plain JavaScript, no build step or external assets). Its heading is **“Recommendation engine”** with the tagline **“Let's make eating fun.”**
 
-- Locality and cuisine are select or searchable inputs fed by `GET /facets`.
-- Budget is three options. Minimum rating is a numeric input or slider from 0 to 5, step 0.1.
-- Additional preferences are an optional text field with the examples from the problem statement (family-friendly, quick service).
-- Submit calls `POST /recommendations` and shows a loading state for the model call.
-- Each card shows restaurant name, cuisine, rating, estimated cost for two, and the AI explanation, in that order.
+**Behavior**
+
+- Locality and cuisine are searchable inputs (`<input list>` with a `<datalist>`) fed by `GET /facets`. Locality is required and must be a facet value.
+- Cuisine is optional. The list starts with **“All cuisines”**; choosing it or leaving the field blank sends no `cuisine`. A typed value that is neither a facet nor “All cuisines” is blocked before any request.
+- Budget is three pill buttons showing their ₹ ranges. Minimum rating is a slider from 0 to 5, step 0.1. Preferences are an optional text field (placeholder “family-friendly, quick service”, 300-character counter).
+- Submit calls `POST /recommendations` and shows a loading state for the model call. A newer search replaces one still running; the browser gives up after 60 seconds.
+- Each card shows restaurant name, cuisine, rating, estimated cost for two, and the AI explanation, in that order, plus a “View on Zomato” link for `http`/`https` URLs.
 - A summary paragraph sits above the cards when the model returns one.
-- An empty state lists which filters removed all rows and invites the user to widen locality, cuisine, budget, or rating.
-- Errors from validation and from the model are shown as plain sentences.
+- An empty state names the filter that removed every row in one sentence and invites the user to widen locality, cuisine, budget, or rating.
+- Errors from validation appear next to their fields; model and server errors appear as plain sentences, and earlier cards are cleared.
+- All server text is inserted as text, never HTML, because it comes from scraped listings and a language model.
 
-Streamlit or a minimal FastAPI-served page both satisfy this. A separate React app is optional and does not change the API.
+**Look and feel**
+
+- Pastel palette (pink, mint, butter yellow, lavender, peach, sky) on a dotted cream background, with dark outlines and hard pastel shadows. Text stays dark plum on pastels for contrast. Dark mode follows the system setting.
+- Inline SVG food illustrations with small faces (burger, nigiri sushi, maki, pizza, donut, boba) in the header and margins; a rolling maki is the loading spinner and a donut marks the empty state.
+- One column below 780px; no horizontal scroll at 400px. Animations stop under `prefers-reduced-motion`.
+
+A separate React app is optional and would not change the API.
 
 ## Suggested repository layout
 
@@ -233,6 +249,10 @@ ZomatoReco/
     catalog.py           # load catalog, facets, filters
     recommend.py         # pool selection, prompt, grounding
     llm.py               # provider client
+    static/
+      index.html         # the diner page
+      styles.css
+      app.js
   ingest/
     build_catalog.py     # Hugging Face download and normalization
   data/                  # generated, gitignored
@@ -241,7 +261,9 @@ ZomatoReco/
   tests/
     test_normalize.py
     test_filter.py
+    test_api.py
     test_grounding.py
+    test_ui.py
 ```
 
 `data/` is generated and stays out of git. `.env` holds the model API key and stays out of git. `.env.example` lists the variable names without secrets.
@@ -250,9 +272,10 @@ ZomatoReco/
 
 | Variable | Purpose |
 | --- | --- |
-| `LLM_BASE_URL` | OpenAI-compatible endpoint |
-| `LLM_API_KEY` | Secret for that endpoint |
-| `LLM_MODEL` | Model name |
+| `LLM_BASE_URL` | OpenAI-compatible endpoint (`https://api.groq.com/openai/v1`) |
+| `LLM_API_KEY` | Secret for that endpoint, kept only in `.env` |
+| `LLM_MODEL` | Model name (`openai/gpt-oss-120b`) |
+| `LLM_RESPONSE_FORMAT` | `json_schema` (default), `json_object`, or `off` |
 | `CATALOG_PATH` | Path to the local catalog |
 | `CANDIDATE_POOL` | Max restaurants sent to the model (default 20) |
 | `DEFAULT_LIMIT` | Recommendations returned (default 5) |
@@ -263,7 +286,8 @@ Budget thresholds live in code next to the filter so tests can pin them.
 
 | Situation | Behavior |
 | --- | --- |
-| Unknown locality or cuisine | 400 with the closest message that the value is not in the catalog facets |
+| Unknown locality, or a given cuisine that matches no tag | 400 with the closest message that the value is not in the catalog facets |
+| Cuisine omitted, blank, or “all” | Not an error: every cuisine is considered |
 | Budget or rating out of range | 400 |
 | Catalog file missing | 503 asking the operator to run the ingestion job |
 | Zero restaurants after filters | 200, empty list, filter stats |
@@ -276,7 +300,8 @@ Budget thresholds live in code next to the filter so tests can pin them.
 Tests stay offline. They do not call Hugging Face or a live model.
 
 - **Normalization:** `4.1/5` becomes `4.1`; `1,000` cost becomes `1000`; comma-separated cuisines become a list; duplicate name-and-address rows collapse.
-- **Filter:** a fixture of a few restaurants checks locality, cuisine substring, each budget band, minimum rating, null rating, and null cost.
+- **Filter:** a fixture of a few restaurants checks locality, cuisine substring, no cuisine (all cuisines), each budget band, minimum rating, null rating, and null cost.
+- **API:** 400 field errors, 503, 200-empty, a shortlist matching the fixture, and requests without a cuisine.
 - **Grounding:** a fake model client returns one known id, one unknown id, and fenced JSON. The assembler keeps the known id, fills rating and cost from the fixture, and rejects an all-unknown payload.
 
 A manual check after ingestion confirms `GET /facets` lists Bangalore localities such as Banashankari, and a sample query (medium budget, a common cuisine, minimum rating 4) returns cards whose numbers match the catalog.
@@ -287,11 +312,11 @@ A manual check after ingestion confirms `GET /facets` lists Bangalore localities
 2. Filter functions and their tests.
 3. API schemas, `GET /facets`, and `POST /recommendations` returning the deterministic top restaurants with a placeholder explanation.
 4. Model client, prompt, JSON parsing, and id grounding.
-5. Single-page UI wired to both endpoints, including the empty state.
+5. Single-page pastel UI wired to both endpoints, including optional cuisine and the empty state.
 6. Manual pass against a live model key with the sample preferences from the problem statement.
 
 Step 3 is intentionally useful before any API key exists: the page can already show name, cuisine, rating, and cost. Step 4 replaces the placeholder explanation with the model text.
 
 ## Out of scope for the first version
 
-Accounts, saved preferences, live Zomato search, maps, booking, and multi-turn chat. Those can sit on the same catalog and API later. The first version is complete when a diner submits the preferences in the problem statement and sees a ranked, explained shortlist whose facts come from the local catalog.
+Accounts, saved preferences, live Zomato search, maps, booking, and multi-turn chat. Those can sit on the same catalog and API later. The first version is complete when a diner submits the preferences in the problem statement (with cuisine optional) and sees a ranked, explained shortlist whose facts come from the local catalog.

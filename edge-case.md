@@ -102,7 +102,7 @@ Case IDs are stable so tests and PRs can refer to them (for example `# covers FL
 | FLT-01 | Locality `banashankari`, `BANASHANKARI`, or ` Banashankari ` | Matches `Banashankari` | Specified (case-insensitive). Trimming is a decision |
 | FLT-02 | Locality is a prefix or substring of a real one (`Bana`) | No match. Locality uses equality, not substring | Specified |
 | FLT-03 | Cuisine `Indian` | Matches `north indian`, `south indian`, and `indian`. Substring matching is wide on purpose | Specified |
-| FLT-04 | Cuisine substring hits an unrelated tag (`tea` inside `steak`, `ice` inside `juices`) | Matches today. Decision needed: match whole words or exact tags to avoid false hits |
+| FLT-04 | Cuisine substring hits an unrelated tag (`tea` inside `steak`, `ice` inside `juices`) | Matches, by design: plain substring matching is kept so broad terms like `indian` cover `north indian` and `south indian`. The occasional unrelated hit is accepted | Specified (decided 2026-10-15) |
 | FLT-05 | Cuisine in mixed case or with spaces around it | Lowercase and trim before matching | Specified (lowercase). Trimming is a decision |
 | FLT-06 | Cost exactly 400 | `low` | Specified |
 | FLT-07 | Cost exactly 401 | `medium` | Specified |
@@ -291,7 +291,7 @@ These affected public behavior or test fixtures. Most were settled while buildin
 | # | Decision | Chosen behavior |
 | --- | --- | --- |
 | 1 | **422 vs 400** (API-08) | A `RequestValidationError` handler returns 400 with `{detail, errors: [{field, message}]}` |
-| 2 | **Cuisine matching** (FLT-04) | **Still open.** Plain substring matching is kept, so `tea` also matches `steak` |
+| 2 | **Cuisine matching** (FLT-04) | Plain substring matching stays (decided 2026-10-15). `indian` matches every Indian tag; the trade-off is that `tea` also matches `steak` |
 | 3 | **Tie-breaking** (ING-53, FLT-15) | Dedup keeps the first row seen on a full tie; the filter sorts by rating, then votes, then `id` |
 | 4 | **Rating and cost parsing** (ING-02, ING-05–08, ING-13–15) | Spaces around `/` and bare numbers are accepted; ratings outside 0–5 and `8/10` become null; `0/5` is `0.0`; `450.0` becomes `450`; cost of 0 or less, or with a `₹` sign, becomes null |
 | 5 | **Preferences** (API-12, API-13) | Blank means no preferences; over 300 characters is rejected with 400, not cut |

@@ -11,6 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -67,6 +68,16 @@ def get_settings() -> Settings:
     )
 
 
+def cors_origins() -> list[str]:
+    """Origins allowed to call the API from a browser, from comma-separated CORS_ORIGINS.
+
+    Empty means same-origin only (the page served by this app). Set it when the page
+    is hosted elsewhere, e.g. CORS_ORIGINS=https://zomatoreco.vercel.app
+    """
+    raw = os.environ.get("CORS_ORIGINS", "")
+    return [origin.strip().rstrip("/") for origin in raw.split(",") if origin.strip()]
+
+
 def _int_env(name: str, default: int) -> int:
     raw = os.environ.get(name, "").strip()
     if not raw:
@@ -96,6 +107,14 @@ STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="ZomatoReco", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+if origins := cors_origins():
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type"],
+    )
 
 
 @app.get("/", include_in_schema=False)

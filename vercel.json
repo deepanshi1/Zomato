@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "node deploy/write-config.mjs",
+  "outputDirectory": "app/static",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/static/:path*", "destination": "/:path*" }
+  ]
+}

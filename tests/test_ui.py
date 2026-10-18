@@ -17,7 +17,8 @@ def test_page_is_served(client):
 
 
 def test_static_assets_are_served(client):
-    for path, kind in (("/static/app.js", "javascript"), ("/static/styles.css", "css")):
+    for path, kind in (("/static/app.js", "javascript"), ("/static/config.js", "javascript"),
+                       ("/static/styles.css", "css")):
         response = client.get(path)
         assert response.status_code == 200
         assert kind in response.headers["content-type"]
@@ -35,3 +36,12 @@ def test_script_never_uses_inner_html(client):
     script = client.get("/static/app.js").text
     assert "innerHTML" not in script.replace("never innerHTML", "")
     assert "insertAdjacentHTML" not in script
+
+
+def test_page_loads_config_before_script_and_defaults_to_same_origin(client):
+    html = client.get("/").text
+    assert html.index('src="/static/config.js"') < html.index('src="/static/app.js"')
+    assert 'window.API_BASE = "";' in client.get("/static/config.js").text
+    script = client.get("/static/app.js").text
+    assert "fetch(`${API_BASE}/facets`)" in script
+    assert "fetch(`${API_BASE}/recommendations`" in script

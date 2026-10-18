@@ -1,9 +1,15 @@
 # Secrets
 .env
 
-# Generated catalog (keep the empty folder)
+# Generated catalog: keep the built files the backend image needs
 data/*
 !data/.gitkeep
+!data/catalog.parquet
+!data/facets.json
+
+# Deploy CLI link state
+.vercel/
+.railway/
 
 # Python
 __pycache__/

@@ -1,0 +1,7 @@
+# Vercel serves only the static page; everything else stays local.
+/*
+!/app
+/app/*
+!/app/static
+!/deploy
+!/vercel.json

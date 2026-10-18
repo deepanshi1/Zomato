@@ -3,6 +3,8 @@
 // All server text (names, cuisines, explanations) is inserted with textContent,
 // never innerHTML: it comes from scraped listings and a language model.
 
+// Empty means same origin; config.js sets it when the page is hosted apart from the API.
+const API_BASE = String(window.API_BASE || "").replace(/\/+$/, "");
 const REQUEST_TIMEOUT_MS = 60000;
 const BUDGET_LABELS = { low: "low (up to ₹400)", medium: "medium (₹401–800)", high: "high (above ₹800)" };
 const FIELDS = ["locality", "cuisine", "budget", "min_rating", "preferences"];
@@ -65,7 +67,7 @@ function fillOptions(datalist, map, values, label) {
 
 async function loadFacets() {
   try {
-    const response = await fetch("/facets");
+    const response = await fetch(`${API_BASE}/facets`);
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.detail || "The restaurant list is not available right now.");
     fillOptions($("locality-options"), facets.locality, body.localities || [], (v) => v);
@@ -267,7 +269,7 @@ async function submit(event) {
   showOnly(els.loading);
 
   try {
-    const response = await fetch("/recommendations", {
+    const response = await fetch(`${API_BASE}/recommendations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(query),

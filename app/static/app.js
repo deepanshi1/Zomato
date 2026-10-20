@@ -21,15 +21,22 @@ const els = {
   preferences: $("preferences"),
   prefCount: $("pref-count"),
   submit: $("submit"),
+  submitLabel: $("submit-label"),
+  cuisineCount: $("cuisine-count"),
   formMessage: $("form-message"),
   results: $("results"),
   intro: $("intro"),
   loading: $("loading"),
   error: $("error"),
+  errorMessage: $("error-message"),
+  retry: $("retry"),
   empty: $("empty"),
   emptyReason: $("empty-reason"),
   shortlist: $("shortlist"),
   summary: $("summary"),
+  summaryText: $("summary-text"),
+  digestTitle: $("digest-title"),
+  digestBudget: $("digest-budget"),
   cards: $("cards"),
   poolNote: $("pool-note"),
   template: $("card-template"),
@@ -74,6 +81,8 @@ async function loadFacets() {
     fillOptions($("cuisine-options"), facets.cuisine, [ALL_CUISINES, ...(body.cuisines || [])], titleCase);
     els.locality.placeholder = "Start typing, e.g. Banashankari";
     els.cuisine.placeholder = "All cuisines, or type e.g. Italian";
+    const cuisineTotal = (body.cuisines || []).length;
+    els.cuisineCount.textContent = cuisineTotal ? `${cuisineTotal} styles` : "";
     els.locality.disabled = els.cuisine.disabled = els.submit.disabled = false;
   } catch (err) {
     els.locality.placeholder = els.cuisine.placeholder = "Unavailable";
@@ -164,7 +173,8 @@ function showOnly(panel) {
 }
 
 function showError(message) {
-  els.error.textContent = message;
+  els.errorMessage.textContent = message;
+  els.cards.replaceChildren();
   showOnly(els.error);
 }
 
@@ -228,7 +238,9 @@ function renderResults(body, query) {
     showOnly(els.empty);
     return;
   }
-  els.summary.textContent = body.summary || "";
+  els.summaryText.textContent = body.summary || "";
+  els.digestTitle.textContent = `Foodie digest for ${query.locality}`;
+  els.digestBudget.textContent = `Budget: ${BUDGET_LABELS[query.budget]}`;
   els.summary.hidden = !body.summary;
   els.cards.replaceChildren(...recs.map(renderCard));
   const { matched, pool } = body.filter_stats;
@@ -265,7 +277,7 @@ async function submit(event) {
   const timer = setTimeout(() => controller.abort("timeout"), REQUEST_TIMEOUT_MS);
 
   els.submit.disabled = true;
-  els.submit.textContent = "Searching…";
+  els.submitLabel.textContent = "Searching…";
   showOnly(els.loading);
 
   try {
@@ -299,7 +311,7 @@ async function submit(event) {
     if (requestId === latestRequest) {
       inFlight = null;
       els.submit.disabled = false;
-      els.submit.textContent = "Find my food";
+      els.submitLabel.textContent = "Find my food";
     }
   }
 }
@@ -310,8 +322,9 @@ async function submit(event) {
 
 els.form.addEventListener("submit", submit);
 els.rating.addEventListener("input", () => {
-  els.ratingValue.textContent = Number(els.rating.value).toFixed(1);
+  els.ratingValue.textContent = `${Number(els.rating.value).toFixed(1)} ★`;
 });
+els.retry.addEventListener("click", () => els.form.requestSubmit());
 els.preferences.addEventListener("input", () => {
   els.prefCount.textContent = els.preferences.value.length;
 });

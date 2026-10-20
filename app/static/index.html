@@ -4,196 +4,289 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Recommendation engine — Let's make eating fun</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M8 30C8 16 20 8 32 8s24 8 24 22z' fill='%23FFD6B8' stroke='%233A2E39' stroke-width='3'/%3E%3Crect x='6' y='36' width='52' height='9' rx='4.5' fill='%23B98B7C' stroke='%233A2E39' stroke-width='3'/%3E%3Cpath d='M8 48h48v3c0 5-4 7-8 7H16c-4 0-8-2-8-7z' fill='%23FFD6B8' stroke='%233A2E39' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M8 20C8 12 15 10 24 10s16 2 16 10z' fill='%23fed5b7' stroke='%233A2E39' stroke-width='2.5'/%3E%3Crect x='8' y='26' width='32' height='6' rx='3' fill='%23ff9ebb' stroke='%233A2E39' stroke-width='2'/%3E%3Cpath d='M10 34h28c0 5-5 6-14 6s-14-1-14-6z' fill='%23fed5b7' stroke='%233A2E39' stroke-width='2.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Quicksand:wght@500;600;700&display=swap">
   <link rel="stylesheet" href="/static/styles.css">
   <script src="/static/config.js"></script>
   <script src="/static/app.js" defer></script>
 </head>
 <body>
-  <!-- Food illustrations, drawn once and reused with <use>. -->
+  <!-- Icons and food stickers, drawn once and reused with <use>. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <defs>
-      <symbol id="ico-burger" viewBox="0 0 64 64">
-        <g stroke="#3A2E39" stroke-width="2.4" stroke-linejoin="round">
-          <path d="M8 30C8 16 20 8 32 8s24 8 24 22z" fill="#FFD6B8"/>
-          <path d="M5 32q4.5 5 9 0t9 0 9 0 9 0 9 0 9 0" fill="none" stroke="#7FCB9A" stroke-width="5" stroke-linecap="round"/>
-          <path d="M8 35h48l-9 6-9-6z" fill="#FFE8A3"/>
-          <rect x="6" y="38" width="52" height="9" rx="4.5" fill="#B98B7C"/>
-          <path d="M8 49h48v2c0 5-4 7-8 7H16c-4 0-8-2-8-7z" fill="#FFD6B8"/>
-        </g>
-        <g fill="#FFFDF7"><ellipse cx="20" cy="17" rx="2" ry="1.2"/><ellipse cx="44" cy="17" rx="2" ry="1.2"/><ellipse cx="32" cy="13" rx="2" ry="1.2"/></g>
-        <g fill="#3A2E39"><circle cx="25" cy="23" r="2"/><circle cx="39" cy="23" r="2"/></g>
-        <path d="M29 26q3 3 6 0" fill="none" stroke="#3A2E39" stroke-width="2" stroke-linecap="round"/>
-        <g fill="#FF9EBB" opacity=".7"><circle cx="20" cy="26" r="2.2"/><circle cx="44" cy="26" r="2.2"/></g>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.4" fill="currentColor"/></symbol>
+      <symbol id="i-fork" viewBox="0 0 24 24"><path d="M7 3v8m-2.5-8v5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 21V3c-2.2 1.2-3.5 3.8-3.5 7v3H17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-tune" viewBox="0 0 24 24"><path d="M4 6h9m4 0h3M4 12h3m4 0h9M4 18h11m4 0h1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M10 3l1.6 4.4L16 9l-4.4 1.6L10 15l-1.6-4.4L4 9l4.4-1.6zM18 13l.9 2.1L21 16l-2.1.9L18 19l-.9-2.1L15 16l2.1-.9z" fill="currentColor"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-retry" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.3" fill="currentColor"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+      <symbol id="ico-burger" viewBox="0 0 48 48">
+        <path d="M8 20C8 12 15 10 24 10C33 10 40 12 40 20H8Z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"/>
+        <g fill="#765841"><circle cx="16" cy="14" r="1"/><circle cx="24" cy="13" r="1"/><circle cx="31" cy="14" r="1"/></g>
+        <path d="M6 23C9 21 12 25 15 23C18 21 21 25 24 23C27 21 30 25 33 23C36 21 39 25 42 23" fill="none" stroke="#8bc8a5" stroke-linecap="round" stroke-width="3"/>
+        <rect x="8" y="27" width="32" height="6" rx="3" fill="#ff9ebb" stroke="#3A2E39" stroke-width="1.5"/>
+        <path d="M10 33H38C38 38 33 40 24 40C15 40 10 38 10 33Z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"/>
+        <g fill="#3A2E39"><circle cx="19" cy="30" r="1"/><circle cx="29" cy="30" r="1"/></g>
       </symbol>
 
-      <symbol id="ico-sushi" viewBox="0 0 64 64">
-        <g stroke="#3A2E39" stroke-width="2.4" stroke-linejoin="round">
-          <rect x="8" y="30" width="48" height="22" rx="11" fill="#FFFDF7"/>
-          <path d="M6 30c0-10 10-14 26-14s26 4 26 14c0 4-4 6-8 4-6-3-30-3-36 0-4 2-8 0-8-4z" fill="#FFB4A2"/>
-        </g>
-        <g fill="none" stroke="#FFE3DB" stroke-width="2.4" stroke-linecap="round">
-          <path d="M18 20q3 5 1 11"/><path d="M27 18q3 6 1 12"/><path d="M45 20q-3 5-1 11"/>
-        </g>
-        <rect x="29" y="14" width="7" height="40" rx="2" fill="#5B6E68" stroke="#3A2E39" stroke-width="2.4"/>
-        <g fill="#3A2E39"><circle cx="20" cy="42" r="2"/><circle cx="45" cy="42" r="2"/></g>
-        <g fill="#FF9EBB" opacity=".7"><circle cx="15" cy="45" r="2.2"/><circle cx="50" cy="45" r="2.2"/></g>
-      </symbol>
-
-      <symbol id="ico-maki" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="26" fill="#5B6E68" stroke="#3A2E39" stroke-width="2.4"/>
-        <circle cx="32" cy="32" r="20" fill="#FFFDF7"/>
-        <circle cx="32" cy="32" r="9" fill="#FFB4A2"/>
-        <circle cx="26" cy="27" r="3.4" fill="#A8E6C1"/>
-        <circle cx="39" cy="37" r="3" fill="#FFE8A3"/>
-        <g fill="#3A2E39"><circle cx="21" cy="40" r="1.8"/><circle cx="43" cy="22" r="1.8"/></g>
+      <symbol id="ico-sushi" viewBox="0 0 48 48">
+        <rect x="10" y="22" width="28" height="16" rx="7" fill="#ffffff" stroke="#3A2E39" stroke-width="2"/>
+        <path d="M8 22C8 17 14 14 24 14C34 14 40 17 40 22L38 25H10L8 22Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="2"/>
+        <path d="M12 18L18 22M28 16L34 21" stroke="#ffffff" stroke-linecap="round" stroke-width="1.5"/>
+        <rect x="21" y="14" width="7" height="24" rx="2" fill="#3A2E39"/>
+        <g fill="#3A2E39"><circle cx="16" cy="29" r="1.2"/><circle cx="33" cy="29" r="1.2"/></g>
       </symbol>
 
       <symbol id="ico-pizza" viewBox="0 0 64 64">
-        <g stroke="#3A2E39" stroke-width="2.4" stroke-linejoin="round">
-          <path d="M32 59 8 15q24-12 48 0z" fill="#FFE8A3"/>
-          <path d="M8 15q24-12 48 0l-3 7q-21-10-42 0z" fill="#FFD6B8"/>
-          <g fill="#FF9EBB"><circle cx="27" cy="29" r="4"/><circle cx="39" cy="33" r="3.6"/><circle cx="31" cy="44" r="3.2"/></g>
-        </g>
-        <g fill="#7FCB9A"><circle cx="22" cy="37" r="1.6"/><circle cx="42" cy="24" r="1.6"/></g>
-      </symbol>
-
-      <symbol id="ico-donut" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="18" fill="none" stroke="#3A2E39" stroke-width="20"/>
-        <circle cx="32" cy="32" r="18" fill="none" stroke="#FFD6B8" stroke-width="15"/>
-        <path d="M32 18a14 14 0 1 1-.1 0" fill="none" stroke="#D9CCF5" stroke-width="11" stroke-linecap="round"/>
-        <g stroke-width="2.6" stroke-linecap="round">
-          <path d="M22 22l3 2" stroke="#FF9EBB"/><path d="M40 20l-1 3" stroke="#A8E6C1"/>
-          <path d="M45 33l-3 1" stroke="#FFE8A3"/><path d="M36 45l-2-2" stroke="#FF9EBB"/>
-          <path d="M21 39l3-1" stroke="#BEE3F8"/>
-        </g>
+        <path d="M12 48L32 14L52 48C45 52 19 52 12 48Z" fill="#FFE8A3" stroke="#3A2E39" stroke-width="2.5"/>
+        <path d="M14 46C18 50 46 50 50 46" fill="none" stroke="#fed5b7" stroke-width="4"/>
+        <g fill="#ff9ebb"><circle cx="27" cy="38" r="3"/><circle cx="38" cy="36" r="3"/></g>
+        <g fill="#3A2E39"><circle cx="28" cy="29" r="1.5"/><circle cx="36" cy="29" r="1.5"/></g>
+        <path d="M30.5 32q1.5 1.5 3 0" fill="none" stroke="#3A2E39" stroke-width="1.5" stroke-linecap="round"/>
       </symbol>
 
       <symbol id="ico-boba" viewBox="0 0 64 64">
-        <path d="M37 4l-4 20" stroke="#3A2E39" stroke-width="5" stroke-linecap="round"/>
-        <path d="M37 4l-4 20" stroke="#FF9EBB" stroke-width="2.6" stroke-linecap="round"/>
-        <g stroke="#3A2E39" stroke-width="2.4" stroke-linejoin="round">
-          <path d="M14 20h36l-5 38H19z" fill="#D9CCF5"/>
-          <rect x="12" y="16" width="40" height="6" rx="3" fill="#FFFDF7"/>
-        </g>
-        <g fill="#3A2E39"><circle cx="24" cy="50" r="3"/><circle cx="32" cy="52" r="3"/><circle cx="40" cy="50" r="3"/><circle cx="28" cy="45" r="3"/><circle cx="36" cy="46" r="3"/></g>
-        <g fill="#3A2E39"><circle cx="27" cy="31" r="1.8"/><circle cx="37" cy="31" r="1.8"/></g>
-        <path d="M30 34q2 2 4 0" fill="none" stroke="#3A2E39" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="28" fill="#FFD6B8" stroke="#3A2E39" stroke-width="2.5"/>
+        <path d="M22 24h20l-3 24h-14l-3-24z" fill="#FFF8F0" stroke="#3A2E39" stroke-width="2"/>
+        <path d="M32 12l4 12" stroke="#93455f" stroke-linecap="round" stroke-width="3"/>
+        <g fill="#3A2E39"><circle cx="28" cy="33" r="1.5"/><circle cx="36" cy="33" r="1.5"/><circle cx="27" cy="43" r="2"/><circle cx="32" cy="44" r="2"/><circle cx="37" cy="42" r="2"/></g>
+        <path d="M30 37q2 2 4 0" fill="none" stroke="#3A2E39" stroke-linecap="round" stroke-width="1.5"/>
+      </symbol>
+
+      <symbol id="ico-nigiri" viewBox="0 0 64 64">
+        <rect x="12" y="24" width="40" height="26" rx="8" fill="#FFF7FA" stroke="#3A2E39" stroke-width="2.5"/>
+        <path d="M10 28C10 20 20 18 32 18C44 18 54 20 54 28H10Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="2.5"/>
+        <rect x="26" y="16" width="12" height="34" rx="2" fill="#3A2E39"/>
+        <g fill="#3A2E39"><circle cx="20" cy="38" r="1.5"/><circle cx="44" cy="38" r="1.5"/></g>
+      </symbol>
+
+      <symbol id="ico-donut" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="22" fill="#fed5b7" stroke="#3A2E39" stroke-width="2.5"/>
+        <path d="M22 22C24 16 38 14 42 22" fill="none" stroke="#ff9ebb" stroke-linecap="round" stroke-width="5"/>
+        <circle cx="32" cy="32" r="8" fill="#fff7fa" stroke="#3A2E39" stroke-width="2.5"/>
+        <g fill="#3A2E39"><circle cx="24" cy="40" r="1.5"/><circle cx="40" cy="40" r="1.5"/></g>
+        <path d="M30 44q2 1 4 0" fill="none" stroke="#3A2E39" stroke-width="1.5" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="ico-sad-donut" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="24" fill="#ffdcc3" stroke="#3A2E39" stroke-width="2.5"/>
+        <path d="M12 32C12 21 21 12 32 12C43 12 52 21 52 32C46 30 42 34 38 31C34 28 30 33 26 30C22 28 17 33 12 32Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="1.5"/>
+        <circle cx="32" cy="38" r="7" fill="#fff7fa" stroke="#3A2E39" stroke-width="2.5"/>
+        <g fill="#3A2E39"><circle cx="25" cy="23" r="2"/><circle cx="39" cy="23" r="2"/></g>
+        <path d="M29 28q3 -2 6 0" fill="none" stroke="#3A2E39" stroke-linecap="round" stroke-width="2"/>
+        <path d="M42 26q1.2 3 -1 3q-1.2 0 1 -3z" fill="#BEE3F8"/>
+      </symbol>
+
+      <symbol id="ico-pot" viewBox="0 0 48 48">
+        <path d="M10 22h28v12c0 6-6 8-14 8s-14-2-14-8V22z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"/>
+        <path d="M8 20h32v4H8z" fill="#ffdcc3" stroke="#3A2E39" stroke-width="2"/>
+        <path d="M16 15c0-3 3-4 3-7M24 15c0-3 3-4 3-7M32 15c0-3 3-4 3-7" fill="none" stroke="#93455f" stroke-linecap="round" stroke-width="2"/>
+        <g fill="#3A2E39"><circle cx="20" cy="30" r="1.5"/><circle cx="28" cy="30" r="1.5"/></g>
+        <path d="M22 35q2 -1.5 4 0" fill="none" stroke="#3A2E39" stroke-width="1.5" stroke-linecap="round"/>
       </symbol>
     </defs>
   </svg>
 
   <div class="sprinkles" aria-hidden="true">
-    <svg class="float f1"><use href="#ico-donut"/></svg>
+    <svg class="float f1"><use href="#ico-boba"/></svg>
     <svg class="float f2"><use href="#ico-pizza"/></svg>
-    <svg class="float f3"><use href="#ico-boba"/></svg>
-    <svg class="float f4"><use href="#ico-maki"/></svg>
+    <svg class="float f3"><use href="#ico-nigiri"/></svg>
+    <svg class="float f4"><use href="#ico-donut"/></svg>
   </div>
 
-  <header class="masthead">
-    <div class="hero-food" aria-hidden="true">
-      <svg class="hero hero-burger"><use href="#ico-burger"/></svg>
-      <svg class="hero hero-sushi"><use href="#ico-sushi"/></svg>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">
+        <svg class="brand-logo" aria-hidden="true"><use href="#ico-burger"/></svg>
+        <span class="brand-text">
+          <span class="brand-name">Recommendation engine</span>
+          <span class="brand-sub">Bangalore Edition</span>
+        </span>
+      </span>
+      <span class="pill pill-mint"><span class="dot"></span>Zomato Bangalore listings</span>
     </div>
-    <h1>Recommendation engine</h1>
-    <p class="tagline">Let's make eating fun.</p>
-    <p class="lede">Pick a Bangalore neighbourhood and a budget. We'll dig through Zomato listings and tell you why each spot fits.</p>
   </header>
 
-  <main class="layout">
-    <form id="search" class="panel" novalidate>
-      <div class="field">
-        <label for="locality">Where are you eating?</label>
-        <input id="locality" name="locality" list="locality-options" autocomplete="off"
-               placeholder="Loading localities…" required disabled>
-        <datalist id="locality-options"></datalist>
-        <p class="field-error" id="locality-error" hidden></p>
-      </div>
-
-      <div class="field">
-        <label for="cuisine">Craving <span class="optional">optional</span></label>
-        <input id="cuisine" name="cuisine" list="cuisine-options" autocomplete="off"
-               placeholder="Loading cuisines…" disabled>
-        <datalist id="cuisine-options"></datalist>
-        <p class="hint hint-left">Leave blank or pick “All cuisines” to see everything.</p>
-        <p class="field-error" id="cuisine-error" hidden></p>
-      </div>
-
-      <fieldset class="field">
-        <legend>Budget for two</legend>
-        <div class="segmented" role="radiogroup">
-          <label class="b-low"><input type="radio" name="budget" value="low"><span>Low<small>up to ₹400</small></span></label>
-          <label class="b-medium"><input type="radio" name="budget" value="medium" checked><span>Medium<small>₹401–800</small></span></label>
-          <label class="b-high"><input type="radio" name="budget" value="high"><span>High<small>above ₹800</small></span></label>
-        </div>
-        <p class="field-error" id="budget-error" hidden></p>
-      </fieldset>
-
-      <div class="field">
-        <label for="min_rating">Minimum rating <output id="rating-value" for="min_rating">4.0</output></label>
-        <input id="min_rating" name="min_rating" type="range" min="0" max="5" step="0.1" value="4">
-        <div class="range-scale" aria-hidden="true"><span>0</span><span>5 ★</span></div>
-        <p class="field-error" id="min_rating-error" hidden></p>
-      </div>
-
-      <div class="field">
-        <label for="preferences">Anything else? <span class="optional">optional</span></label>
-        <textarea id="preferences" name="preferences" rows="3" maxlength="300"
-                  placeholder="family-friendly, quick service"></textarea>
-        <p class="hint"><span id="pref-count">0</span>/300</p>
-        <p class="field-error" id="preferences-error" hidden></p>
-      </div>
-
-      <button id="submit" type="submit" disabled>Find my food</button>
-      <p class="form-message" id="form-message" role="alert" hidden></p>
-    </form>
-
-    <section id="results" class="results" aria-live="polite" aria-busy="false">
-      <div id="intro" class="placeholder">
-        <div class="placeholder-food" aria-hidden="true">
-          <svg><use href="#ico-pizza"/></svg>
-          <svg><use href="#ico-sushi"/></svg>
-          <svg><use href="#ico-burger"/></svg>
-        </div>
-        <p>Your shortlist will appear here.</p>
-      </div>
-
-      <div id="loading" class="placeholder" hidden>
-        <svg class="spinner" aria-hidden="true"><use href="#ico-maki"/></svg>
-        <p>Rolling up your picks…</p>
-      </div>
-
-      <div id="error" class="notice notice-error" role="alert" hidden></div>
-
-      <div id="empty" class="notice notice-empty" hidden>
-        <svg class="empty-food" aria-hidden="true"><use href="#ico-donut"/></svg>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-title">
+        <span class="sticker sticker-peach tilt-l" aria-hidden="true"><svg><use href="#ico-burger"/></svg></span>
         <div>
-          <p id="empty-reason"></p>
+          <span class="pill pill-blush"><span class="dot dot-primary"></span>Zomato-powered Bangalore curator</span>
+          <h1>Recommendation engine</h1>
+        </div>
+        <span class="sticker sticker-pink tilt-r" aria-hidden="true"><svg><use href="#ico-sushi"/></svg></span>
+      </div>
+      <p class="tagline">Let's make eating fun.</p>
+      <p class="lede">Pick a Bangalore neighbourhood and a budget. We'll dig through Zomato listings and tell you exactly why each spot fits your mood.</p>
+    </section>
+
+    <main class="layout">
+      <form id="search" class="panel" novalidate>
+        <div class="panel-head">
+          <h2><svg class="icon icon-primary" aria-hidden="true"><use href="#i-tune"/></svg>Curate your plate</h2>
+          <span class="pill pill-peach">Zomato filtered</span>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="locality">Where are you eating? <span class="req" aria-hidden="true">*</span></label>
+            <span class="field-meta">Bangalore Urban</span>
+          </div>
+          <div class="input-wrap">
+            <svg class="input-icon icon-primary" aria-hidden="true"><use href="#i-pin"/></svg>
+            <input id="locality" name="locality" list="locality-options" autocomplete="off"
+                   placeholder="Loading localities…" required disabled>
+          </div>
+          <datalist id="locality-options"></datalist>
+          <p class="field-error" id="locality-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="cuisine">Craving <span class="optional">optional</span></label>
+            <span class="field-meta" id="cuisine-count"></span>
+          </div>
+          <div class="input-wrap">
+            <svg class="input-icon icon-secondary" aria-hidden="true"><use href="#i-fork"/></svg>
+            <input id="cuisine" name="cuisine" list="cuisine-options" autocomplete="off"
+                   placeholder="Loading cuisines…" disabled>
+          </div>
+          <datalist id="cuisine-options"></datalist>
+          <p class="hint">Leave blank or pick “All cuisines” to see everything in the area.</p>
+          <p class="field-error" id="cuisine-error" hidden></p>
+        </div>
+
+        <fieldset class="field">
+          <div class="field-head">
+            <legend>Budget for two</legend>
+            <span class="field-meta">Approx. Zomato bill</span>
+          </div>
+          <div class="segmented" role="radiogroup">
+            <label class="b-low"><input type="radio" name="budget" value="low"><span><b><svg class="check" aria-hidden="true"><use href="#i-check"/></svg>Low</b><small>≤ ₹400</small></span></label>
+            <label class="b-medium"><input type="radio" name="budget" value="medium" checked><span><b><svg class="check" aria-hidden="true"><use href="#i-check"/></svg>Medium</b><small>₹401–800</small></span></label>
+            <label class="b-high"><input type="radio" name="budget" value="high"><span><b><svg class="check" aria-hidden="true"><use href="#i-check"/></svg>High</b><small>&gt; ₹800</small></span></label>
+          </div>
+          <p class="field-error" id="budget-error" hidden></p>
+        </fieldset>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="min_rating">Minimum rating</label>
+            <output id="rating-value" class="rating-badge" for="min_rating">4.0 ★</output>
+          </div>
+          <input id="min_rating" name="min_rating" type="range" min="0" max="5" step="0.1" value="4">
+          <div class="range-scale" aria-hidden="true">
+            <span style="left:0">0.0 (show all)</span>
+            <span style="left:70%">3.5</span>
+            <span style="left:80%">4.0</span>
+            <span style="left:100%">5.0 ★</span>
+          </div>
+          <p class="field-error" id="min_rating-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="preferences">Anything else? <span class="optional">optional</span></label>
+            <span class="field-meta"><span id="pref-count">0</span> / 300</span>
+          </div>
+          <textarea id="preferences" name="preferences" rows="3" maxlength="300"
+                    placeholder="family-friendly, quick service"></textarea>
+          <p class="field-error" id="preferences-error" hidden></p>
+        </div>
+
+        <button id="submit" class="btn btn-primary btn-block" type="submit" disabled>
+          <svg class="icon" aria-hidden="true"><use href="#i-fork"/></svg>
+          <span id="submit-label">Find my food</span>
+        </button>
+        <p class="form-message" id="form-message" role="alert" hidden></p>
+      </form>
+
+      <section id="results" class="results" aria-live="polite" aria-busy="false">
+        <div id="intro" class="state-card">
+          <div class="trio" aria-hidden="true">
+            <span class="sticker sticker-peach tilt-l"><svg><use href="#ico-pizza"/></svg></span>
+            <span class="sticker sticker-pink sticker-lg"><svg><use href="#ico-sushi"/></svg></span>
+            <span class="sticker sticker-mint tilt-r"><svg><use href="#ico-burger"/></svg></span>
+          </div>
+          <h2>Ready to explore Bangalore?</h2>
+          <p>Your shortlist will appear here. Pick a neighbourhood to start rolling!</p>
+        </div>
+
+        <div id="loading" class="state-card" hidden>
+          <div class="maki" aria-hidden="true">
+            <span class="maki-ring"></span>
+            <span class="maki-roll"><span><span></span></span></span>
+          </div>
+          <h2>Rolling up your picks…</h2>
+          <p>Filtering Bangalore listings and asking our foodie model to rank the best matches.</p>
+          <div class="progress" aria-hidden="true"><span></span></div>
+        </div>
+
+        <div id="error" class="state-card state-row" role="alert" hidden>
+          <span class="sticker sticker-peach sticker-lg" aria-hidden="true"><svg><use href="#ico-pot"/></svg></span>
+          <div>
+            <span class="pill pill-error"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-alert"/></svg>Something went wrong</span>
+            <h2>Oops! The foodie kitchen is a bit busy.</h2>
+            <p id="error-message"></p>
+            <button id="retry" class="btn btn-primary btn-sm" type="button">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#i-retry"/></svg>Retry search
+            </button>
+          </div>
+        </div>
+
+        <div id="empty" class="state-card" hidden>
+          <span class="sticker sticker-round tilt-l" aria-hidden="true"><svg><use href="#ico-sad-donut"/></svg></span>
+          <span class="pill pill-error">Zero matches found</span>
+          <h2 id="empty-reason"></h2>
           <p>Try a nearby locality, a broader cuisine, a different budget, or a lower minimum rating.</p>
         </div>
-      </div>
 
-      <div id="shortlist" hidden>
-        <p id="summary" class="summary" hidden></p>
-        <ol id="cards" class="cards"></ol>
-        <p id="pool-note" class="hint"></p>
-      </div>
-    </section>
-  </main>
+        <div id="shortlist" hidden>
+          <div id="summary" class="digest" hidden>
+            <span class="digest-icon" aria-hidden="true"><svg><use href="#i-spark"/></svg></span>
+            <div>
+              <div class="digest-head">
+                <h2 id="digest-title">Foodie digest</h2>
+                <span class="pill pill-peach" id="digest-budget"></span>
+              </div>
+              <p id="summary-text"></p>
+            </div>
+          </div>
+          <ol id="cards" class="cards"></ol>
+          <p id="pool-note" class="pool-note"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>Built on Zomato restaurant listings for Bangalore. Rankings and explanations are written by a language model.</p>
+    <p class="footer-small">Curated with delight for Bangalore foodies.</p>
+  </footer>
 
   <template id="card-template">
     <li class="card">
       <div class="card-head">
         <span class="rank"></span>
-        <h2 class="name"></h2>
+        <div>
+          <h3 class="name"></h3>
+          <p class="cuisines"></p>
+        </div>
       </div>
-      <p class="cuisines"></p>
       <dl class="facts">
         <div class="fact fact-rating"><dt>Rating</dt><dd class="rating"></dd></div>
         <div class="fact fact-cost"><dt>Cost for two</dt><dd class="cost"></dd></div>
       </dl>
       <p class="explanation"></p>
-      <a class="link" target="_blank" rel="noopener noreferrer" hidden>View on Zomato →</a>
+      <div class="card-foot">
+        <a class="link" target="_blank" rel="noopener noreferrer" hidden>View on Zomato <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
     </li>
   </template>
 </body>

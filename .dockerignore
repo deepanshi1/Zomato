@@ -7,3 +7,5 @@ __pycache__/
 *.pyc
 .DS_Store
 tests/
+stitch_bangalore_food_recommendation_engine/
+*.md

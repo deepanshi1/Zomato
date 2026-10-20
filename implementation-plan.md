@@ -201,7 +201,7 @@ Fallback model: `openai/gpt-oss-20b`. It is faster and supports strict JSON Sche
 
 **Satisfies.** User input and output display: restaurant name, cuisine, rating, estimated cost, and AI-generated explanation.
 
-**Files.** `app/static/index.html`, `app/static/styles.css`, `app/static/app.js`. FastAPI serves the page at `/` and the assets under `/static`. No build step, framework, or external fonts and images.
+**Files.** `app/static/index.html`, `app/static/styles.css`, `app/static/app.js`. FastAPI serves the page at `/` and the assets under `/static`. No build step, framework, or external images. The only external asset is the Quicksand and Inter fonts from Google Fonts, with system-font fallbacks so the page still works if they fail to load.
 
 **Tasks**
 

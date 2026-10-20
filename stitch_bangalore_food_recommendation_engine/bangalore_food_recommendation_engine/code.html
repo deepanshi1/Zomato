@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"outline":"#857276","error-container":"#ffdad6","background":"#fff7fa","surface-tint":"#93455f","on-secondary-fixed-variant":"#5c412b","tertiary":"#2e694c","surface-container":"#fce8f7","inverse-primary":"#ffb1c7","surface":"#fff7fa","surface-container-highest":"#f0ddec","secondary":"#765841","surface-container-high":"#f6e3f1","on-primary-fixed":"#3e011c","inverse-on-surface":"#ffebfa","on-error-container":"#93000a","secondary-container":"#fed5b7","tertiary-container":"#8bc8a5","surface-variant":"#f0ddec","on-tertiary-fixed":"#002112","on-primary":"#ffffff","on-surface":"#231822","primary":"#93455f","on-primary-container":"#7b314b","on-surface-variant":"#534346","on-error":"#ffffff","inverse-surface":"#392d38","tertiary-fixed-dim":"#97d4b0","outline-variant":"#d8c1c5","on-background":"#231822","error":"#ba1a1a","surface-bright":"#fff7fa","on-tertiary-fixed-variant":"#125135","on-primary-fixed-variant":"#762d47","secondary-fixed":"#ffdcc3","primary-container":"#ff9ebb","surface-dim":"#e8d5e3","primary-fixed-dim":"#ffb1c7","surface-container-low":"#ffeffa","tertiary-fixed":"#b2f0cb","primary-fixed":"#ffd9e2","on-secondary-container":"#795b43","on-tertiary":"#ffffff","secondary-fixed-dim":"#e6bfa2","surface-container-lowest":"#ffffff","on-secondary-fixed":"#2b1705","on-tertiary-container":"#175539","on-secondary":"#ffffff"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2rem","gutter":"1rem","space-2xl":"3rem","gutter-lg":"1.5rem","space-xs":"0.25rem","margin-lg":"2.5rem","space-md":"1rem","space-lg":"1.5rem","margin":"1rem","margin-md":"1.5rem","space-sm":"0.5rem"},fontFamily:{"label-sm":["Quicksand"],"label-md":["Quicksand"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-lg":["Quicksand"],"display-mobile":["Quicksand"],"body-md":["Inter"],"label-lg":["Quicksand"],"headline-sm":["Quicksand"],"headline-lg-mobile":["Quicksand"],"display":["Quicksand"],"headline-md":["Quicksand"]},fontSize:{"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"700"}],"label-md":["13px",{"lineHeight":"18px","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}],"display-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-md":["15px",{"lineHeight":"22px","fontWeight":"400"}],"label-lg":["15px",{"lineHeight":"20px","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","fontWeight":"700"}],"display":["44px",{"lineHeight":"52px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col justify-between"><header class="fixed top-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 max-w-7xl mx-auto px-margin md:px-margin-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-sm group focus:outline-none" data-path="explore" href="#"><img alt="Recommendation Engine Logo" class="h-8 w-auto object-contain transition-transform duration-200 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AEtjO1Ws8_W1UUrhSo202cSFccGbvlD8vNxGydbxo2tIvtGfU76S1f2MGWSA6z1P8yb2Y3zEbcoiDx7U2-u2zv2Z7VBMR9ba6dAjh73x1U0jzMJntbXsdKUerGTDROrDC_3tS3mxOQtxjhNVJtSy3GVi_wtMeiEHB3bvvnY1Bad4klV_YkVBEX2J-leErUH0MSYPHV9rMdNcryEIHObN4jNHgwV1QMCyLJ3VoZz1BpmQUSjj56IFBvKYYLX_DHBm"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight leading-none">Recommendation engine</span><span class="font-label-sm text-label-sm text-secondary leading-tight mt-0.5">Bangalore Edition</span></div></a><div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container"><span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span><span class="font-label-sm text-label-sm">Zomato Live Data</span></div></div><nav class="hidden md:flex items-center gap-space-sm p-1 rounded-full bg-surface-container-low" data-active-classes="bg-primary-container text-on-primary-container font-label-lg rounded-full"><a aria-current="page" class="px-4 py-2 transition-all duration-150 bg-primary-container text-on-primary-container font-label-lg rounded-full" data-path="explore" href="#">Explore</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high px-4 py-2 rounded-full transition-all duration-150" data-path="saved-spots" href="#">Saved Spots</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high px-4 py-2 rounded-full transition-all duration-150" data-path="bangalore-food-guide" href="#">Bangalore Food Guide</a></nav><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-background flex-1 max-w-7xl mx-auto px-margin md:px-margin-lg"><div class="flex flex-col w-full pb-space-2xl relative overflow-hidden font-body-md text-on-surface">
+<!-- Floating Ambient Kawaii Stickers Background -->
+<div class="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden opacity-45">
+<div class="absolute top-12 left-6 animate-bounce" style="animation-duration: 6s;">
+<svg class="drop-shadow-sm" fill="none" height="48" viewbox="0 0 64 64" width="48">
+<circle cx="32" cy="32" fill="#FFD6B8" r="28" stroke="#3A2E39" stroke-width="2.5"></circle>
+<!-- Kawaii Boba Cup -->
+<path d="M22 24h20l-3 24h-14l-3-24z" fill="#FFF8F0" stroke="#3A2E39" stroke-width="2"></path>
+<line stroke="#93455f" stroke-linecap="round" stroke-width="3" x1="32" x2="36" y1="12" y2="24"></line>
+<circle cx="28" cy="34" fill="#3A2E39" r="1.5"></circle>
+<circle cx="36" cy="34" fill="#3A2E39" r="1.5"></circle>
+<path d="M30 38q2 2 4 0" stroke="#3A2E39" stroke-linecap="round" stroke-width="1.5"></path>
+<circle cx="26" cy="42" fill="#3A2E39" r="2"></circle>
+<circle cx="32" cy="43" fill="#3A2E39" r="2"></circle>
+<circle cx="38" cy="41" fill="#3A2E39" r="2"></circle>
+</svg>
+</div>
+<div class="absolute top-28 right-8 animate-pulse" style="animation-duration: 4s;">
+<svg fill="none" height="52" viewbox="0 0 64 64" width="52">
+<path d="M12 48L32 14L52 48C45 52 19 52 12 48Z" fill="#FFE8A3" stroke="#3A2E39" stroke-width="2.5"></path>
+<path d="M14 46C18 50 46 50 50 46" stroke="#fed5b7" stroke-width="4"></path>
+<circle cx="28" cy="36" fill="#ff9ebb" r="3"></circle>
+<circle cx="38" cy="30" fill="#ff9ebb" r="3"></circle>
+<circle cx="28" cy="28" fill="#3A2E39" r="1.5"></circle>
+<circle cx="36" cy="28" fill="#3A2E39" r="1.5"></circle>
+<path d="M31 32q1 1 2 0" stroke="#3A2E39" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="absolute top-[480px] -left-4 animate-bounce" style="animation-duration: 7s;">
+<svg fill="none" height="56" viewbox="0 0 64 64" width="56">
+<rect fill="#FFF7FA" height="26" rx="8" stroke="#3A2E39" stroke-width="2.5" width="40" x="12" y="24"></rect>
+<path d="M10 28C10 20 20 18 32 18C44 18 54 20 54 28H10Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="2.5"></path>
+<rect fill="#3A2E39" height="34" rx="2" width="12" x="26" y="16"></rect>
+<circle cx="22" cy="34" fill="#3A2E39" r="1.5"></circle>
+<circle cx="42" cy="34" fill="#3A2E39" r="1.5"></circle>
+<path d="M31 38q1 2 2 0" stroke="#3A2E39" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="absolute bottom-20 right-4 animate-pulse" style="animation-duration: 5s;">
+<svg fill="none" height="54" viewbox="0 0 64 64" width="54">
+<circle cx="32" cy="32" fill="#fed5b7" r="22" stroke="#3A2E39" stroke-width="2.5"></circle>
+<circle cx="32" cy="32" fill="#fff7fa" r="8" stroke="#3A2E39" stroke-width="2.5"></circle>
+<path d="M22 22C24 16 38 14 42 22" stroke="#ff9ebb" stroke-linecap="round" stroke-width="5"></path>
+<circle cx="24" cy="38" fill="#3A2E39" r="1.5"></circle>
+<circle cx="40" cy="38" fill="#3A2E39" r="1.5"></circle>
+<path d="M30 42q2 1 4 0" stroke="#3A2E39" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+<!-- Hero Header Section -->
+<header class="relative z-10 pt-6 pb-4 flex flex-col items-center text-center">
+<!-- Visual Badge & Illustrations -->
+<div class="inline-flex items-center gap-space-md mb-2">
+<!-- Kawaii Burger SVG -->
+<div class="w-12 h-12 bg-secondary-container rounded-2xl flex items-center justify-center p-1.5 shadow-[2px_2px_0px_#3A2E39] border-2 border-[#3A2E39] transform -rotate-6 hover:rotate-0 transition-transform duration-200">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48">
+<path d="M8 20C8 12 15 10 24 10C33 10 40 12 40 20H8Z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"></path>
+<circle cx="16" cy="14" fill="#765841" r="1"></circle>
+<circle cx="24" cy="13" fill="#765841" r="1"></circle>
+<circle cx="31" cy="14" fill="#765841" r="1"></circle>
+<path d="M6 23C9 21 12 25 15 23C18 21 21 25 24 23C27 21 30 25 33 23C36 21 39 25 42 23" stroke="#8bc8a5" stroke-linecap="round" stroke-width="3"></path>
+<rect fill="#ff9ebb" height="6" rx="3" stroke="#3A2E39" stroke-width="1.5" width="32" x="8" y="27"></rect>
+<path d="M10 33H38C38 38 33 40 24 40C15 40 10 38 10 33Z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"></path>
+<circle cx="19" cy="30" fill="#3A2E39" r="1"></circle>
+<circle cx="29" cy="30" fill="#3A2E39" r="1"></circle>
+<path d="M23 32q1 1 2 0" stroke="#3A2E39" stroke-width="1"></path>
+</svg>
+</div>
+<div class="flex flex-col items-center">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-label-sm border border-[#3A2E39]/20 mb-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+          Zomato-Powered Bangalore Curator
+        </div>
+<h1 class="font-display text-display text-on-surface tracking-tight leading-tight">
+          Recommendation engine
+        </h1>
+</div>
+<!-- Kawaii Sushi Nigiri SVG -->
+<div class="w-12 h-12 bg-primary-fixed rounded-2xl flex items-center justify-center p-1.5 shadow-[2px_2px_0px_#3A2E39] border-2 border-[#3A2E39] transform rotate-6 hover:rotate-0 transition-transform duration-200">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48">
+<rect fill="#ffffff" height="16" rx="7" stroke="#3A2E39" stroke-width="2" width="28" x="10" y="22"></rect>
+<path d="M8 22C8 17 14 14 24 14C34 14 40 17 40 22L38 25H10L8 22Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="2"></path>
+<path d="M12 18L18 22M20 16L26 21M28 16L34 21" stroke="#ffffff" stroke-linecap="round" stroke-width="1.5"></path>
+<rect fill="#3A2E39" height="24" rx="2" width="7" x="21" y="14"></rect>
+<circle cx="16" cy="28" fill="#3A2E39" r="1"></circle>
+<circle cx="32" cy="28" fill="#3A2E39" r="1"></circle>
+<path d="M23 30q1 1 2 0" stroke="#ffffff" stroke-width="1"></path>
+</svg>
+</div>
+</div>
+<p class="font-headline-md text-headline-md text-primary font-semibold mb-1">
+      Let's make eating fun.
+    </p>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
+      Pick a Bangalore neighbourhood and a budget. We'll dig through live Zomato listings and tell you exactly why each spot fits your mood.
+    </p>
+<!-- State Switcher Bar -->
+<div class="mt-4 p-1.5 bg-surface-container-high rounded-full border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] flex flex-wrap items-center justify-center gap-1">
+<button class="state-tab-btn active px-3.5 py-1.5 rounded-full font-label-md text-label-md transition-all duration-150 bg-primary-container text-on-primary-container font-bold shadow-sm" id="tab-results" onclick="switchState('results')">
+        ✨ Results View (Active)
+      </button>
+<button class="state-tab-btn px-3.5 py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-150" id="tab-empty" onclick="switchState('empty')">
+        🍱 Empty Intro
+      </button>
+<button class="state-tab-btn px-3.5 py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-150" id="tab-loading" onclick="switchState('loading')">
+        🌀 Loading Roll
+      </button>
+<button class="state-tab-btn px-3.5 py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-150" id="tab-nomatch" onclick="switchState('nomatch')">
+        🍩 No Matches
+      </button>
+<button class="state-tab-btn px-3.5 py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-150" id="tab-error" onclick="switchState('error')">
+        ⚠️ Error Alert
+      </button>
+</div>
+</header>
+<!-- Two Column Main Workspace -->
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start mt-4">
+<!-- LEFT COLUMN: Search & Filter Panel (approx 380px-420px / 5 cols) -->
+<aside class="lg:col-span-4 lg:max-w-md w-full bg-surface-container-lowest/95 backdrop-blur rounded-2xl p-6 border-2 border-[#3A2E39] shadow-[4px_4px_0px_#3A2E39] flex flex-col gap-space-md">
+<!-- Panel Header -->
+<div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">tune</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Curate Your Plate</h2>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+          Zomato Filtered
+        </span>
+</div>
+<!-- 1. Bangalore Locality -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="locality-select">
+            Where are you eating? <span class="text-error font-bold">*</span>
+</label>
+<span class="font-label-sm text-label-sm text-secondary">Bangalore Urban</span>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-primary">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+</div>
+<select class="w-full pl-10 pr-8 py-2.5 bg-surface-container-low rounded-xl border-2 border-[#3A2E39] text-on-surface font-body-md text-body-md focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary-container transition-all cursor-pointer" id="locality-select">
+<option selected="" value="indiranagar">Indiranagar (100ft &amp; 12th Main)</option>
+<option value="koramangala">Koramangala 5th Block</option>
+<option value="hsr">HSR Layout (Sector 1-4)</option>
+<option value="jayanagar">Jayanagar (4th Block)</option>
+<option value="church-street">Church Street / MG Road</option>
+<option value="lavelle-road">Lavelle Road &amp; Ashok Nagar</option>
+<option value="whitefield">Whitefield (ITPL &amp; Outer Ring)</option>
+</select>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+<!-- 2. Craving / Cuisine Dropdown -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1.5" for="cuisine-select">
+            Craving
+            <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">optional</span>
+</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">42+ styles</span>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-secondary">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+</div>
+<select class="w-full pl-10 pr-8 py-2.5 bg-surface-container-low rounded-xl border-2 border-[#3A2E39] text-on-surface font-body-md text-body-md focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary-container transition-all cursor-pointer" id="cuisine-select">
+<option selected="" value="all">All cuisines (Explore everything)</option>
+<option value="south-indian">South Indian Tiffin &amp; Dosa</option>
+<option value="craft-beer">Microbrewery &amp; Craft Beer</option>
+<option value="cafe">Bakeries &amp; Specialty Coffee</option>
+<option value="andhra">Andhra &amp; Biryani Special</option>
+<option value="mexican">Mexican Handcrafted Tacos</option>
+<option value="burgers">Gourmet Burgers &amp; American</option>
+<option value="asian">Pan-Asian, Dimsums &amp; Ramen</option>
+</select>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant pl-1">
+          Leave blank or pick "All cuisines" to see everything in the area.
+        </p>
+</div>
+<!-- 3. Budget for Two Segmented Control -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface flex items-center justify-between">
+<span>Budget for two</span>
+<span class="font-label-sm text-label-sm text-secondary font-normal">Approx. Zomato bill</span>
+</label>
+<div class="grid grid-cols-3 gap-2" id="budget-selector">
+<!-- Low -->
+<button class="budget-btn flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border-2 border-[#3A2E39]/40 bg-tertiary-container/30 text-on-tertiary-container hover:border-[#3A2E39] transition-all duration-150" onclick="setBudget(this, 'low')" type="button">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Low</span>
+<span class="font-label-md text-label-md font-bold mt-0.5">≤ ₹400</span>
+</button>
+<!-- Medium (Active default) -->
+<button class="budget-btn flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border-2 border-[#3A2E39] bg-secondary-container text-on-secondary-container shadow-[2px_2px_0px_#3A2E39] ring-2 ring-primary/20 transition-all duration-150" onclick="setBudget(this, 'med')" type="button">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-bold">Medium</span>
+</div>
+<span class="font-label-md text-label-md font-bold mt-0.5">₹401–800</span>
+</button>
+<!-- High -->
+<button class="budget-btn flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border-2 border-[#3A2E39]/40 bg-primary-fixed/40 text-on-primary-fixed-variant hover:border-[#3A2E39] transition-all duration-150" onclick="setBudget(this, 'high')" type="button">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">High</span>
+<span class="font-label-md text-label-md font-bold mt-0.5">&gt; ₹800</span>
+</button>
+</div>
+</div>
+<!-- 4. Minimum Rating Slider -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface" for="rating-range">Minimum rating</label>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high border-2 border-[#3A2E39] font-label-md text-label-md font-bold text-on-surface shadow-[1px_1px_0px_#3A2E39]" id="rating-val">
+            4.2 ★
+          </span>
+</div>
+<input class="w-full accent-primary h-2 bg-surface-container rounded-lg cursor-pointer" id="rating-range" max="5" min="0" oninput="updateRating(this.value)" step="0.1" type="range" value="4.2"/>
+<div class="flex justify-between items-center px-1 font-label-sm text-label-sm text-on-surface-variant">
+<span>0.0 (Show all)</span>
+<span>3.5</span>
+<span>4.0</span>
+<span>5.0 ★</span>
+</div>
+</div>
+<!-- 5. Anything else textarea -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1.5" for="preferences-input">
+            Anything else?
+            <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">optional</span>
+</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="char-counter">42 / 300</span>
+</div>
+<textarea class="w-full p-3 bg-surface-container-low rounded-xl border-2 border-[#3A2E39] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary-container resize-none" id="preferences-input" oninput="updateCharCount(this)" placeholder="outdoor seating, quick service, pet friendly, great filter coffee..." rows="3">craft beer, rooftop breeze, woodfired pizza, outdoor garden</textarea>
+</div>
+<!-- Helper / Soft Hint Banner -->
+<div class="flex items-start gap-2 p-2.5 rounded-xl bg-tertiary-container/30 border border-tertiary/20 text-on-tertiary-container">
+<span class="material-symbols-outlined text-tertiary text-[18px] shrink-0 mt-0.5">verified</span>
+<p class="font-body-sm text-body-sm leading-snug">
+<strong>Pro-tip:</strong> Indiranagar microbreweries fill up fast on weekends after 7 PM. Book a table early!
+        </p>
+</div>
+<!-- Submit CTA Button with Spinner State -->
+<button class="w-full py-3.5 px-6 rounded-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-label-lg text-label-lg border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:shadow-[5px_5px_0px_#3A2E39] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#3A2E39] transition-all flex items-center justify-center gap-2" id="find-food-btn" onclick="simulateSearch()">
+<span class="material-symbols-outlined text-[20px]" id="btn-icon">lunch_dining</span>
+<span id="btn-text">Find my food</span>
+</button>
+<!-- Bottom Subtext -->
+<div class="text-center pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant/80 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">bolt</span>
+          Synced live with Zomato Bangalore directory
+        </span>
+</div>
+</aside>
+<!-- RIGHT COLUMN: Results / Interactive States (approx 7-8 cols) -->
+<main class="lg:col-span-8 w-full flex flex-col gap-space-lg">
+<!-- ========================================== -->
+<!-- STATE C: MAIN RESULTS VIEW (Default Active) -->
+<!-- ========================================== -->
+<section class="state-container flex flex-col gap-space-md" id="state-results-view">
+<!-- AI Summary Callout Bubble -->
+<div class="p-5 rounded-2xl bg-surface-container-high border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] flex items-start gap-3.5 relative overflow-hidden">
+<div class="w-10 h-10 rounded-xl bg-primary-container border-2 border-[#3A2E39] flex items-center justify-center shrink-0 shadow-[1px_1px_0px_#3A2E39]">
+<span class="material-symbols-outlined text-on-primary-container text-[22px]">auto_awesome</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between gap-2 mb-1">
+<h3 class="font-label-lg text-label-lg text-primary tracking-tight">AI Foodie Digest for Indiranagar</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+                Target: Under ₹800
+              </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+              ✨ <strong>Fresh picks for Indiranagar under ₹800!</strong> We analyzed 140+ Zomato listings and found 8 gems with vibrant outdoor vibes, killer filter coffee &amp; craft brews, and honest comforting portions that hit the spot without breaking the bank.
+            </p>
+</div>
+</div>
+<!-- 8 Restaurant Cards Grid (Bespoke 2-column or fluid stack with stickers) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Card 1: Toit -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    1
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Toit Brewpub &amp; Kitchen</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Craft Beer · Continental · Woodfired Pizza</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.6 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹750
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  100ft Road
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Famous for woodfired sourdough pizzas and iconic Bangalorean microbrewery atmosphere that stays vibrant all evening.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Tint-in-Wit &amp; Tart Flambé</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 2: Rameshwaram Cafe -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    2
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Rameshwaram Cafe</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">South Indian · Fast Food · Filter Coffee</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.4 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹350
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  12th Main
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                The ultimate hot ghee podi idli spot with legendary standing breakfast culture and lightning-fast counter service.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Ghee Podi Thatte Idli</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 3: Glen's Bakehouse -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-tertiary-fixed text-on-tertiary-container font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    3
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Glen's Bakehouse</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Bakery · Desserts · Cafe</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.3 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹600
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  Lavelle / Indiranagar
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Cozy bungalow courtyard perfect for casual catchups, celebrated for legendary red velvet cupcakes and savory pot pies.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Mini Red Velvet Cupcakes</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 4: Chinita Real Mexican -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    4
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Chinita Real Mexican</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Mexican · Tacos · Beverages</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.5 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹800
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  Double Road
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Authentic handcrafted corn masa tortillas and fresh guacamole made from scratch in an intimate cheerful corner.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Crispy Pork Carnitas</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 5: Truffles -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    5
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Truffles</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Burgers · American · Steaks</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.4 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹550
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  100ft Road
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Bangalore's beloved hearty burger haven with decadent cheesy loaded fries and student-friendly pricing.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: All American Cheese Burger</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 6: Meghana Foods -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    6
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Meghana Foods</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Biryani · Andhra · Seafood</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.5 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹700
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  CMH Road
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Spicy fiery Andhra chicken 65 and legendary aromatic Hyderabadi biryani that never fails to satisfy a big craving.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Meghana Special Chicken Biryani</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 7: Smoke House Deli -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-tertiary-fixed text-on-tertiary-container font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    7
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Smoke House Deli</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">European · Salads · Comfort Food</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.3 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹800
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  100ft Road
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Whimsical hand-drawn wall art with wholesome all-day breakfast scrambles and delicate handmade pasta.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Smoked Chicken &amp; Brie Melt</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Card 8: Sly Granny -->
+<article class="bg-surface-container-lowest rounded-2xl p-4 border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#3A2E39] transition-all duration-200 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-2 mb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-headline-sm text-headline-sm flex items-center justify-center border border-[#3A2E39] shrink-0 text-sm font-bold">
+                    8
+                  </span>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">Sly Granny</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">European · Cocktail Bar · Tapas</p>
+</div>
+</div>
+</div>
+<!-- Fact Chips -->
+<div class="flex flex-wrap gap-1.5 my-2.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 border border-[#3A2E39]/20">
+<span class="material-symbols-outlined text-[13px]">star</span> Rating 4.4 ★
+                </span>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/40 text-on-tertiary-container font-label-sm text-label-sm border border-[#3A2E39]/20">
+                  Cost for two ₹800
+                </span>
+<span class="px-2 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                  12th Main
+                </span>
+</div>
+<!-- AI Reasoning -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Quirky colonial-chic parlour serving clever small plates and comforting banoffee pie on a breezy rooftop.
+              </p>
+</div>
+<!-- Card Bottom Action -->
+<div class="mt-4 pt-3 border-t border-surface-container-high flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-medium">Bestseller: Deconstructed Banoffee Pie</span>
+<a class="inline-flex items-center gap-1 text-primary font-label-md text-label-md hover:underline group" href="#">
+                View on Zomato <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+</article>
+</div>
+<!-- Footnote Status -->
+<div class="p-4 rounded-xl bg-surface-container-low border border-dashed border-[#3A2E39]/30 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Showing the top <strong>8 of 23 matches</strong> in Indiranagar</span>
+</div>
+<span class="opacity-80">Refreshed 4 mins ago via Zomato API</span>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- STATE A: EMPTY INTRO STATE CARD -->
+<!-- ========================================== -->
+<section class="state-container hidden" id="state-empty-view">
+<div class="bg-surface-container-lowest rounded-3xl p-10 border-2 border-[#3A2E39] shadow-[4px_4px_0px_#3A2E39] flex flex-col items-center text-center">
+<!-- Food Trio Illustrations -->
+<div class="flex items-center justify-center gap-4 mb-6">
+<!-- Pizza Kawaii -->
+<div class="w-16 h-16 bg-secondary-container rounded-2xl flex items-center justify-center border-2 border-[#3A2E39] shadow-[2px_2px_0px_#3A2E39] -rotate-12">
+<svg class="w-10 h-10" fill="none" viewbox="0 0 32 32">
+<path d="M6 26L16 6L26 26C22 28 10 28 6 26Z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"></path>
+<circle cx="14" cy="18" fill="#ff9ebb" r="1.5"></circle>
+<circle cx="18" cy="22" fill="#ff9ebb" r="1.5"></circle>
+<circle cx="14" cy="14" fill="#3A2E39" r="1"></circle>
+<circle cx="18" cy="14" fill="#3A2E39" r="1"></circle>
+<path d="M15 16q1 1 2 0" stroke="#3A2E39" stroke-width="1"></path>
+</svg>
+</div>
+<!-- Sushi Kawaii -->
+<div class="w-20 h-20 bg-primary-fixed rounded-3xl flex items-center justify-center border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] z-10">
+<svg class="w-12 h-12" fill="none" viewbox="0 0 40 40">
+<rect fill="#ffffff" height="14" rx="6" stroke="#3A2E39" stroke-width="2" width="24" x="8" y="18"></rect>
+<path d="M6 18C6 14 11 11 20 11C29 11 34 14 34 18H6Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="2"></path>
+<rect fill="#3A2E39" height="21" width="6" x="17" y="11"></rect>
+<circle cx="14" cy="24" fill="#3A2E39" r="1"></circle>
+<circle cx="26" cy="24" fill="#3A2E39" r="1"></circle>
+<path d="M19 26q1 1 2 0" stroke="#ffffff" stroke-width="1"></path>
+</svg>
+</div>
+<!-- Burger Kawaii -->
+<div class="w-16 h-16 bg-tertiary-fixed rounded-2xl flex items-center justify-center border-2 border-[#3A2E39] shadow-[2px_2px_0px_#3A2E39] rotate-12">
+<svg class="w-10 h-10" fill="none" viewbox="0 0 32 32">
+<path d="M6 14C6 8 11 7 16 7C21 7 26 8 26 14H6Z" fill="#ffdcc3" stroke="#3A2E39" stroke-width="1.5"></path>
+<rect fill="#8bc8a5" height="4" rx="2" width="22" x="5" y="16"></rect>
+<path d="M7 21H25C25 25 21 26 16 26C11 26 7 25 7 21Z" fill="#ffdcc3" stroke="#3A2E39" stroke-width="1.5"></path>
+<circle cx="13" cy="18" fill="#3A2E39" r="0.8"></circle>
+<circle cx="19" cy="18" fill="#3A2E39" r="0.8"></circle>
+</svg>
+</div>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">Ready to explore Bangalore?</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mb-6 leading-relaxed">
+            Your shortlist will appear here. Pick a neighbourhood on the left to start rolling!
+          </p>
+<div class="flex flex-wrap items-center justify-center gap-2">
+<span class="px-3.5 py-1.5 rounded-full bg-surface-container font-label-md text-label-md text-on-surface-variant border border-[#3A2E39]/20">
+              💡 Tip: Try Koramangala for nightlife
+            </span>
+<span class="px-3.5 py-1.5 rounded-full bg-surface-container font-label-md text-label-md text-on-surface-variant border border-[#3A2E39]/20">
+              ☕ Jayanagar for authentic filter coffee
+            </span>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- STATE B: LOADING STATE CARD -->
+<!-- ========================================== -->
+<section class="state-container hidden" id="state-loading-view">
+<div class="bg-surface-container-lowest rounded-3xl p-12 border-2 border-[#3A2E39] shadow-[4px_4px_0px_#3A2E39] flex flex-col items-center text-center">
+<!-- Spinning Maki Roll Animation -->
+<div class="relative w-24 h-24 mb-6 flex items-center justify-center">
+<!-- Pulsing outer ring -->
+<div class="absolute inset-0 rounded-full border-4 border-dashed border-primary animate-spin" style="animation-duration: 8s;"></div>
+<!-- Maki SVG Mascot -->
+<div class="w-16 h-16 rounded-full bg-on-surface flex items-center justify-center border-2 border-[#3A2E39] shadow-inner animate-bounce" style="animation-duration: 1.2s;">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-[#3A2E39]">
+<!-- Kawaii Veggie Center -->
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary-container"></div>
+</div>
+</div>
+</div>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">Rolling up your picks…</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">
+            Searching 100+ Bangalore foodie spots and parsing live reviews on Zomato for your cravings...
+          </p>
+<!-- Animated Progress Pill -->
+<div class="w-64 h-3 bg-surface-container rounded-full overflow-hidden border border-[#3A2E39]/30">
+<div class="h-full bg-primary-container rounded-full animate-pulse w-3/4"></div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary mt-2">Filtering top ratings &amp; verified reviews</span>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- STATE D: NO MATCHES STATE CARD -->
+<!-- ========================================== -->
+<section class="state-container hidden" id="state-nomatch-view">
+<div class="bg-surface-container-lowest rounded-3xl p-10 border-2 border-[#3A2E39] shadow-[4px_4px_0px_#3A2E39] flex flex-col items-center text-center">
+<!-- Sad/Puzzled Donut Illustration -->
+<div class="w-24 h-24 bg-surface-container-high rounded-full flex items-center justify-center border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] mb-5 transform -rotate-6">
+<svg class="w-16 h-16" fill="none" viewbox="0 0 64 64">
+<!-- Donut Body -->
+<circle cx="32" cy="32" fill="#ffdcc3" r="24" stroke="#3A2E39" stroke-width="2.5"></circle>
+<!-- Hole -->
+<circle cx="32" cy="32" fill="#fff7fa" r="9" stroke="#3A2E39" stroke-width="2.5"></circle>
+<!-- Frosting with sad curve -->
+<path d="M12 32C12 21 21 12 32 12C43 12 52 21 52 32C46 30 42 34 38 31C34 28 30 33 26 30C22 28 17 33 12 32Z" fill="#ff9ebb" stroke="#3A2E39" stroke-width="1.5"></path>
+<!-- Sad Eyes -->
+<circle cx="25" cy="24" fill="#3A2E39" r="2"></circle>
+<circle cx="39" cy="24" fill="#3A2E39" r="2"></circle>
+<!-- Sad Mouth -->
+<path d="M29 29q3 -2 6 0" stroke="#3A2E39" stroke-linecap="round" stroke-width="2"></path>
+<!-- Tear droplet -->
+<path d="M42 27q1 3 -1 3q-1 0 0 -3z" fill="#BEE3F8"></path>
+</svg>
+</div>
+<span class="px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold mb-2">
+            Zero Matches Found
+          </span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">
+            No Italian restaurants in Banashankari at 4.5★ or above.
+          </h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md mb-6 leading-relaxed">
+            Try a nearby locality, a broader cuisine, a different budget, or a lower minimum rating.
+          </p>
+<!-- Quick Recovery Action Pills -->
+<div class="flex flex-wrap items-center justify-center gap-2">
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md border-2 border-[#3A2E39] shadow-[2px_2px_0px_#3A2E39] hover:-translate-y-0.5 transition-all" onclick="resetFilters()">
+              Reset Filters to Default
+            </button>
+<button class="px-4 py-2 rounded-full bg-surface-container text-on-surface font-label-md text-label-md border border-[#3A2E39]/30 hover:bg-surface-container-high transition-all" onclick="switchLocality('indiranagar')">
+              Switch to Indiranagar
+            </button>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- STATE E: ERROR ALERT STATE CARD -->
+<!-- ========================================== -->
+<section class="state-container hidden" id="state-error-view">
+<div class="bg-surface-container-lowest rounded-3xl p-8 border-2 border-[#3A2E39] shadow-[4px_4px_0px_#3A2E39] flex flex-col md:flex-row items-center gap-6">
+<!-- Cute Alert Mascot -->
+<div class="w-20 h-20 bg-secondary-container rounded-2xl flex items-center justify-center border-2 border-[#3A2E39] shadow-[3px_3px_0px_#3A2E39] shrink-0">
+<svg class="w-12 h-12" fill="none" viewbox="0 0 48 48">
+<!-- Steaming Pot / Kitchen -->
+<path d="M10 22h28v12c0 6-6 8-14 8s-14-2-14-8V22z" fill="#fed5b7" stroke="#3A2E39" stroke-width="2"></path>
+<path d="M8 20h32v4H8z" fill="#ffdcc3" stroke="#3A2E39" stroke-width="2"></path>
+<path d="M16 14c0-3 3-4 3-7M24 14c0-3 3-4 3-7M32 14c0-3 3-4 3-7" stroke="#93455f" stroke-linecap="round" stroke-width="2"></path>
+<circle cx="20" cy="30" fill="#3A2E39" r="1.5"></circle>
+<circle cx="28" cy="30" fill="#3A2E39" r="1.5"></circle>
+<path d="M22 34q2 -1 4 0" stroke="#3A2E39" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold mb-1.5">
+<span class="material-symbols-outlined text-[14px]">error</span>
+              API Connection Interrupted
+            </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">
+              Oops! The foodie kitchen is a bit busy.
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-4">
+              We couldn't connect with the Zomato Bangalore listing feed right now. Please check your internet connection or hit retry to give the chefs another nudge!
+            </p>
+<div class="flex flex-wrap gap-2 justify-center md:justify-start">
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md border-2 border-[#3A2E39] shadow-[2px_2px_0px_#3A2E39] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-1.5" onclick="simulateSearch()">
+<span class="material-symbols-outlined text-[16px]">refresh</span> Retry Search
+              </button>
+<button class="px-4 py-2 rounded-full bg-surface-container text-on-surface font-label-md text-label-md border border-[#3A2E39]/30 hover:bg-surface-container-high transition-all" onclick="switchState('results')">
+                Use Cached Offline Results
+              </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Live Interactivity Script -->
+<script>
+    // State Switcher Function
+    function switchState(stateName) {
+      // Hide all states
+      const states = ['results', 'empty', 'loading', 'nomatch', 'error'];
+      states.forEach(s => {
+        const el = document.getElementById('state-' + s + '-view');
+        if (el) el.classList.add('hidden');
+        
+        const btn = document.getElementById('tab-' + s);
+        if (btn) {
+          btn.classList.remove('active', 'bg-primary-container', 'text-on-primary-container', 'font-bold', 'shadow-sm');
+          btn.classList.add('text-on-surface-variant');
+        }
+      });
+
+      // Show chosen state
+      const target = document.getElementById('state-' + stateName + '-view');
+      if (target) {
+        target.classList.remove('hidden');
+      }
+
+      // Update button styling
+      const activeBtn = document.getElementById('tab-' + stateName);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-on-surface-variant');
+        activeBtn.classList.add('active', 'bg-primary-container', 'text-on-primary-container', 'font-bold', 'shadow-sm');
+      }
+    }
+
+    // Budget Segmented Control Switcher
+    function setBudget(btn, tier) {
+      document.querySelectorAll('.budget-btn').forEach(b => {
+        b.classList.remove('border-[#3A2E39]', 'shadow-[2px_2px_0px_#3A2E39]', 'ring-2', 'ring-primary/20');
+        b.classList.add('border-[#3A2E39]/40');
+      });
+      btn.classList.add('border-[#3A2E39]', 'shadow-[2px_2px_0px_#3A2E39]', 'ring-2', 'ring-primary/20');
+      btn.classList.remove('border-[#3A2E39]/40');
+    }
+
+    // Rating Slider Live Update
+    function updateRating(val) {
+      document.getElementById('rating-val').textContent = parseFloat(val).toFixed(1) + ' ★';
+    }
+
+    // Character Counter
+    function updateCharCount(el) {
+      const len = el.value.length;
+      document.getElementById('char-counter').textContent = len + ' / 300';
+    }
+
+    // Simulate Search Button Transition
+    function simulateSearch() {
+      const btnText = document.getElementById('btn-text');
+      const btnIcon = document.getElementById('btn-icon');
+      const findBtn = document.getElementById('find-food-btn');
+
+      btnText.textContent = "Searching Zomato...";
+      btnIcon.textContent = "hourglass_top";
+      btnIcon.classList.add('animate-spin');
+
+      // Switch temporarily to loading
+      switchState('loading');
+
+      setTimeout(() => {
+        btnText.textContent = "Find my food";
+        btnIcon.textContent = "lunch_dining";
+        btnIcon.classList.remove('animate-spin');
+        switchState('results');
+      }, 900);
+    }
+
+    // Reset helper
+    function resetFilters() {
+      document.getElementById('locality-select').value = "indiranagar";
+      document.getElementById('cuisine-select').value = "all";
+      document.getElementById('rating-range').value = "4.2";
+      updateRating("4.2");
+      switchState('results');
+    }
+
+    function switchLocality(loc) {
+      document.getElementById('locality-select').value = loc;
+      switchState('results');
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-container-low py-space-xl mt-space-2xl"><div class="max-w-7xl mx-auto px-margin md:px-margin-lg flex flex-col items-center justify-center gap-space-lg text-center"><div class="flex flex-wrap items-center justify-center gap-space-sm"><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">Dosa Diaries</span><span class="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">Filter Coffee Certified</span><span class="px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-container font-label-sm text-label-sm">Koramangala Verified</span><span class="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">Indiranagar Bites</span></div><div class="flex flex-col items-center gap-space-xs text-on-surface-variant"><p class="font-body-sm text-body-sm">Powered by real-time Bangalore restaurant data &amp; culinary curation via Zomato API.</p><p class="font-label-sm text-label-sm opacity-80">© 2025 Recommendation Engine • Curated with delight for Bangalore foodies.</p></div></div></footer></body></html>

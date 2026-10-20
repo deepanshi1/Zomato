@@ -31,7 +31,7 @@ Phase 0 decisions (done):
 
 What is still open:
 
-- The repo has no git remote, so the hosts cannot deploy from GitHub yet. The CLI path works without one.
+- The repo is on GitHub at https://github.com/deepanshi1/Zomato (`origin`, branch `main`), so Railway and Vercel can be connected to it for deploy-on-push (Phase 5).
 - Docker is not installed locally, so the image has not been built on this machine. The local virtualenv runs Python 3.15; the image uses 3.12.
 
 ## Phase 0 — Release readiness
@@ -44,7 +44,7 @@ What is still open:
 2. Decide what to do with the Stitch mock-ups: commit them as design references or add `stitch_bangalore_food_recommendation_engine/` to `.gitignore`. Either way, add the folder to `.dockerignore` so it never reaches the Railway build context. `.vercelignore` already excludes it.
 3. Decide on the Google Fonts link in `index.html`. The Phase 5 plan says no external fonts. Either accept the dependency and update `implementation-plan.md`, or drop the link and fall back to system fonts. The page works either way.
 4. Run `pytest` and a local smoke run (`uvicorn app.main:app --env-file .env`) with one search.
-5. Optional: create a GitHub repo and push `main`, if you want deploy-on-push later (Phase 5).
+5. Optional: create a GitHub repo and push `main`, if you want deploy-on-push later (Phase 5). Done: `origin` is https://github.com/deepanshi1/Zomato.
 
 **Exit checks**
 

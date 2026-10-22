@@ -91,7 +91,7 @@ h1, h2, h3, legend, label, .pill, .btn { font-family: var(--font-display); }
 .pill-mint { background: var(--mint-soft); border-color: var(--mint); }
 .pill-blush { background: var(--pink); border-color: var(--pink-deep); }
 .pill-peach { background: var(--peach); }
-.pill-error { background: var(--error-soft); color: #93000a; border-color: #f2b8b5; }
+.pill-error { background: var(--error-soft); color: var(--error); border-color: currentColor; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #2e694c; }
 .dot-primary { background: #93455f; }
 

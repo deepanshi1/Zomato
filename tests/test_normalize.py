@@ -1,4 +1,5 @@
 import json
+import re
 
 import pytest
 
@@ -108,6 +109,27 @@ def test_mojibake_is_repaired():
 
 def test_clean_text_is_left_alone():
     assert repair_text("Café Coffee Day") == "Café Coffee Day"
+
+
+def test_repeated_mojibake_is_repaired():
+    name = "Caf" + "é".encode("utf-8").decode("latin-1")
+    for _ in range(3):
+        name = name.encode("utf-8").decode("latin-1")
+    assert repair_text(name + " Down The Alley") == "Café Down The Alley"
+
+
+def test_review_mojibake_with_lone_control_characters_is_repaired():
+    text = "tiny café here"
+    for _ in range(4):
+        text = text.encode("utf-8").decode("latin-1")
+    # reviews_list keeps each "Â" + C1 pair as the bare C1 character
+    text = re.sub(r"\xc2([\x80-\x9f])", r"\1", text)
+    assert repair_text(text) == "tiny café here"
+
+
+def test_mojibake_that_cannot_be_fully_repaired_is_left_alone():
+    broken = "caf\xc3\x83 \xc3"
+    assert repair_text(broken) == broken
 
 
 def test_name_and_address_are_trimmed():

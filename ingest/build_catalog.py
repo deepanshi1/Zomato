@@ -62,18 +62,37 @@ CATALOG_FIELDS = [
 # ---------------------------------------------------------------------------
 
 _MOJIBAKE = re.compile(r"[\xc2-\xf4][\x80-\xbf]|â€")
+# Reviews store "Â\x83" as a lone C1 control character; put the "Â" back so it decodes.
+_LONE_C1 = re.compile(r"(?<![\xc2-\xf4])([\x80-\x9f])")
+MAX_REPAIR_PASSES = 10
 
 
-def repair_text(value: str) -> str:
-    """Undo UTF-8 text that was decoded as Latin-1/CP1252, when the fix is clean."""
-    if not _MOJIBAKE.search(value):
-        return value
+def _repair_once(value: str) -> str | None:
     for encoding in ("latin-1", "cp1252"):
         try:
             return value.encode(encoding).decode("utf-8")
         except (UnicodeEncodeError, UnicodeDecodeError):
             continue
-    return value
+    return None
+
+
+def repair_text(value: str) -> str:
+    """Undo UTF-8 text that was decoded as Latin-1/CP1252, possibly several times over.
+
+    The dataset has names and reviews re-encoded up to eight times, so the fix is
+    repeated until the text is clean or a pass no longer decodes.
+    """
+    if not _MOJIBAKE.search(value):
+        return value
+    text = _LONE_C1.sub("\xc2\\1", value)
+    for _ in range(MAX_REPAIR_PASSES):
+        if not _MOJIBAKE.search(text):
+            return text
+        fixed = _repair_once(text)
+        if fixed is None or fixed == text:
+            break
+        text = fixed
+    return text if text != value and not _MOJIBAKE.search(text) else value
 
 
 def clean_text(value: Any) -> str | None:
